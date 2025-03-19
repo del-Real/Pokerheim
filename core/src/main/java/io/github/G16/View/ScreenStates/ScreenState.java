@@ -1,7 +1,8 @@
 package io.github.G16.View.ScreenStates;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import io.github.G16.Controller.InputManager;
@@ -9,6 +10,7 @@ import io.github.G16.Controller.InputManager;
 public abstract class ScreenState implements Screen {
 
     protected InputManager inputManager;
+    protected Stage stage;
 
     public ScreenState(InputManager inputManager){
         this.inputManager=inputManager;
@@ -18,9 +20,14 @@ public abstract class ScreenState implements Screen {
 
     }
     public void show() {
+        stage = new Stage();
+        inputManager.setInputProcessor(stage);
     }
 
     public void render(float delta) {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
     public void resize(int width, int height){
@@ -40,6 +47,8 @@ public abstract class ScreenState implements Screen {
     public void hide() {
     }
 
+    @Override
     public void dispose() {
+        stage.dispose();
     }
 }
