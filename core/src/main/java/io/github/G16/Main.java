@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
 import io.github.G16.Controller.InputManager;
+import io.github.G16.View.ScreenStates.LaunchLoadingScreen;
 import io.github.G16.View.ScreenStates.MainMenuScreen;
 import io.github.G16.View.ViewManager;
 
@@ -21,7 +22,7 @@ public class Main extends Game {
     public void create() {
         this.viewManager = new ViewManager(this);
         this.inputManager = new InputManager(this.viewManager);
-        this.viewManager.setState(new MainMenuScreen(inputManager));
+        this.viewManager.setState(new LaunchLoadingScreen(inputManager));
 
         SCREEN_WIDTH = Gdx.graphics.getWidth();
         SCREEN_HEIGHT = Gdx.graphics.getHeight();
@@ -32,6 +33,12 @@ public class Main extends Game {
         super.render();
         float delta = Gdx.graphics.getDeltaTime();
         viewManager.getState().render(delta);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        SCREEN_WIDTH = width;
+        SCREEN_HEIGHT = height;
     }
 
     @Override

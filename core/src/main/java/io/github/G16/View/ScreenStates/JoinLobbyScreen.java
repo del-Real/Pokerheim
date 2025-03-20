@@ -1,9 +1,11 @@
 package io.github.G16.View.ScreenStates;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import io.github.G16.Controller.InputManager;
-import io.github.G16.View.Button;
+import io.github.G16.Main;
 
 public class JoinLobbyScreen extends ScreenState{
 
@@ -14,12 +16,18 @@ public class JoinLobbyScreen extends ScreenState{
     public void show(){
         super.show();
 
-        Button backButton = new Button(200, 200, 200, 150, Color.WHITE, "back", () -> {
-            inputManager.changeScreen(new MainMenuScreen(inputManager));
+        skin.getFont("font").getData().setScale(2f);
+
+        TextButton testButton = new TextButton("Now on join lobby screen", skin);
+        testButton.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.25));
+        testButton.setSize((float) (Main.SCREEN_WIDTH * 0.5), (float) (Main.SCREEN_HEIGHT * 0.1));
+        testButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                testButton.setText("Clicked");
+            }
         });
 
-        stage.addActor(backButton);
-
-
+        stage.addActor(testButton);
     }
 }
