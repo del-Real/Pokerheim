@@ -29,6 +29,7 @@ public class DebugScreen extends ScreenState{
     public void show() {
         super.show();
 
+        skin.getFont("font").getData().setScale(4f);
         // Example: Create a button to draw a card
         TextButton drawButton = new TextButton("Draw Card", skin);
         drawButton.addListener(new ClickListener() {
@@ -42,8 +43,23 @@ public class DebugScreen extends ScreenState{
             }
         });
 
+
         // Add button to stage, position it, etc.
         stage.addActor(drawButton);
+
+
+
+        TextButton backButton = new TextButton("<", skin);
+        backButton.setPosition((float) (Main.SCREEN_WIDTH*0.9), (float) (0));
+        backButton.setSize((float) (Main.SCREEN_WIDTH*0.1), (float) (Main.SCREEN_HEIGHT*0.1));
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                inputManager.changeScreen(new MainMenuScreen(inputManager));
+            }
+        });
+
+        stage.addActor(backButton);
     }
 
     @Override

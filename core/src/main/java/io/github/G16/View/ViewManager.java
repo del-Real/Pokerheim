@@ -6,21 +6,21 @@ import io.github.G16.View.ScreenStates.ScreenState;
 
 public class ViewManager {
 
-    private ScreenState state;
+    private ScreenState screen;
     private Game game;
 
     public ViewManager(Game game){
         this.game = game;
     }
-    public ScreenState getState() {
-        return state;
+    public ScreenState getScreen() {
+        return screen;
     }
 
-    public void setState(ScreenState state) {
-        if (this.state != null){
-            this.state.dispose();
+    public void setScreen(ScreenState screen) {
+        if (this.screen != null){
+            this.screen.dispose();
         }
-        this.state = state;
-        game.setScreen(state);
+        this.screen = screen;
+        game.setScreen(screen);
     }
 }
