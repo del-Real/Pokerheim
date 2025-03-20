@@ -1,26 +1,26 @@
 package io.github.G16.View;
 
 import com.badlogic.gdx.Game;
-
+import javax.swing.text.View;
 import io.github.G16.View.ScreenStates.ScreenState;
 
 public class ViewManager {
 
-    private ScreenState screen;
+    private ScreenState state;
     private Game game;
 
     public ViewManager(Game game){
         this.game = game;
     }
-    public ScreenState getScreen() {
-        return this.screen;
+    public ScreenState getState() {
+        return state;
     }
 
-    public void setScreen(ScreenState screen) {
-        if (this.screen != null){
-            this.screen.dispose();
+    public void setState(ScreenState state) {
+        if (this.state != null){
+            this.state.dispose();
         }
-        this.screen = screen;
-        game.setScreen(screen);
+        this.state = state;
+        game.setScreen(state);
     }
 }

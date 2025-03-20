@@ -60,5 +60,19 @@ public class MainMenuScreen extends ScreenState {
         });
 
         stage.addActor(createLobbyButton);
+
+        // Debug
+        TextButton debugButton = new TextButton("DEBUG", skin);
+
+        debugButton.setPosition((float) (0), (float) (0));
+        debugButton.setSize((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.05));
+        debugButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                inputManager.changeScreen(new DebugScreen(inputManager));
+            }
+        });
+
+        stage.addActor(debugButton);
     }
 }
