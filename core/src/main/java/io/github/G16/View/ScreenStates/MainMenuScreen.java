@@ -2,7 +2,6 @@ package io.github.G16.View.ScreenStates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
@@ -22,6 +21,19 @@ public class MainMenuScreen extends ScreenState {
         Gdx.gl.glClearColor(0, 1, 0, 1);
 
         skin.getFont("font").getData().setScale(4f);
+
+        TextButton exitButton = new TextButton("X", skin);
+        exitButton.setPosition((float) (0), (float) (Main.SCREEN_HEIGHT*0.9));
+        exitButton.setSize((float) (Main.SCREEN_WIDTH*0.1), (float) (Main.SCREEN_HEIGHT*0.1));
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                Gdx.app.exit();
+            }
+        });
+
+        stage.addActor(exitButton);
+
 
         TextButton joinLobbyButton = new TextButton("JOIN GAME", skin);
         joinLobbyButton.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.25));

@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 
 import io.github.G16.Controller.InputManager;
 import io.github.G16.View.ScreenStates.LaunchLoadingScreen;
-import io.github.G16.View.ScreenStates.MainMenuScreen;
 import io.github.G16.View.ViewManager;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -22,7 +21,7 @@ public class Main extends Game {
     public void create() {
         this.viewManager = new ViewManager(this);
         this.inputManager = new InputManager(this.viewManager);
-        this.viewManager.setState(new LaunchLoadingScreen(inputManager));
+        this.viewManager.setScreen(new LaunchLoadingScreen(inputManager));
 
         SCREEN_WIDTH = Gdx.graphics.getWidth();
         SCREEN_HEIGHT = Gdx.graphics.getHeight();
@@ -32,7 +31,7 @@ public class Main extends Game {
     public void render() {
         super.render();
         float delta = Gdx.graphics.getDeltaTime();
-        viewManager.getState().render(delta);
+        viewManager.getScreen().render(delta);
     }
 
     @Override
@@ -43,6 +42,6 @@ public class Main extends Game {
 
     @Override
     public void dispose() {
-        viewManager.getState().dispose();
+        viewManager.getScreen().dispose();
     }
 }

@@ -91,9 +91,9 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: {
 		font: font
         // Added the window as a background
-        up: "window",  
+        up: "window",
         down: "window",  
-        over: "window",  
+        over: "window"
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
@@ -101,8 +101,10 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 		font: font
 		fontColor: white
 		cursor: cursor
-		selection: selection
-	}
+		selection: selection,
+		// Added the window as a background
+		background: "window"
+	},
 	number: {
 		font: font
 		fontColor: white

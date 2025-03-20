@@ -13,6 +13,9 @@ public class InputManager implements InputProcessor {
 
     public InputManager(ViewManager viewManager) {
         this.viewManager = viewManager;
+
+        //I tried to make so that when you go back with your phone it goes to the previous screen but I failed
+        //Gdx.input.setCatchKey(Input.Keys.BACK, true);
     }
 
     public void setInputProcessor(InputProcessor inputProcessor) {
@@ -22,7 +25,7 @@ public class InputManager implements InputProcessor {
 
 
     public void changeScreen(ScreenState screen) {
-        viewManager.setState(screen);
+        viewManager.setScreen(screen);
     }
 
 
@@ -55,9 +58,7 @@ public class InputManager implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (currentInputProcessor != null) {
-            if (currentInputProcessor.touchDown(screenX, screenY, pointer, button)) {
-                return true;
-            }
+            return currentInputProcessor.touchDown(screenX, screenY, pointer, button);
         }
         return false;
     }
