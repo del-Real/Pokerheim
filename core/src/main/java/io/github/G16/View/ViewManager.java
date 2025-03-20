@@ -1,9 +1,7 @@
 package io.github.G16.View;
 
 import com.badlogic.gdx.Game;
-
 import javax.swing.text.View;
-
 import io.github.G16.View.ScreenStates.ScreenState;
 
 public class ViewManager {

@@ -1,16 +1,23 @@
 package io.github.G16.Model;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Deck {
 
-
     private ArrayList<Card> cards;
+    private Texture frontCardTexture;
+    private Texture backCardTexture;
 
     // Deck constructor
     public Deck() {
         this.cards = new ArrayList<>();
+        // Load the texture containing all cards
+        frontCardTexture = new Texture(Gdx.files.internal("poker_cards.png"));
+        backCardTexture = new Texture(Gdx.files.internal("back_card.png"));
         initializeDeck();
     }
 
@@ -21,7 +28,7 @@ public class Deck {
 
         for (Suit suit : suits) {
             for (Rank rank : ranks) {
-                Card card = new Card(rank, suit);
+                Card card = new Card(rank, suit, frontCardTexture, backCardTexture);
                 cards.add(card);
             }
         }
@@ -72,5 +79,15 @@ public class Deck {
         cards.clear();
         initializeDeck();
         shuffle();
+    }
+
+    public void dispose() {
+        if (frontCardTexture != null) {
+            frontCardTexture.dispose();
+        }
+
+        if (backCardTexture != null) {
+            backCardTexture.dispose();
+        }
     }
 }

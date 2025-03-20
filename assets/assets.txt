@@ -1,4 +1,6 @@
+back_card.png
 libgdx.png
+poker_cards.png
 uiskin/raw/199x-export.fnt
 uiskin/raw/199x-export.png
 uiskin/raw/199x.png
