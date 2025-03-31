@@ -59,6 +59,7 @@ public class MainMenuScreen extends ScreenState {
             }
         });
 
+        // These are temporary
         stage.addActor(createLobbyButton);
 
         // Debug
@@ -74,5 +75,18 @@ public class MainMenuScreen extends ScreenState {
         });
 
         stage.addActor(debugButton);
+
+        TextButton gameButton = new TextButton("GAME TEST", skin);
+        gameButton.setPosition(Main.SCREEN_WIDTH/2, 0);
+        gameButton.setSize((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.05));
+        gameButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                inputManager.changeScreen(new GameScreen(inputManager));
+            }
+        });
+
+        stage.addActor(gameButton);
+
     }
 }
