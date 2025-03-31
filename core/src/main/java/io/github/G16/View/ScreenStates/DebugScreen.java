@@ -108,7 +108,7 @@ public class DebugScreen extends ScreenState{
                 float centerY = Gdx.graphics.getHeight() / 2f;
 
                 // Calculate time-based scaling for animation effect
-                float scale = 2.5f + 1.5f * (float) Math.sin(Gdx.graphics.getFrameId() * 0.05f);
+                float scale = 2.5f; //+ 1.5f * (float) Math.sin(Gdx.graphics.getFrameId() * 0.05f);
 
                 // Render the card at the center of the screen with animated scaling
                 renderCard(testCard,

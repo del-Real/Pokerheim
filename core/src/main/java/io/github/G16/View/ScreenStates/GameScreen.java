@@ -1,11 +1,18 @@
 package io.github.G16.View.ScreenStates;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
 
 import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
+import io.github.G16.Model.Card;
+import io.github.G16.Model.Rank;
+import io.github.G16.Model.Suit;
 
 public class GameScreen extends ScreenState{
 
@@ -69,7 +76,15 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(foldButton);
 
+        Card card = new Card(Rank.ACE, Suit.CLUBS);
+        TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
 
+        Image cardImage = new Image(cardDrawable);
+        cardImage.setPosition((float) (Main.SCREEN_WIDTH * 0.75), (float) (Main.SCREEN_HEIGHT * 0.25));
+        cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
+
+        stage.addActor(cardImage);
 
     }
+
 }

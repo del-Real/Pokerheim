@@ -1,5 +1,6 @@
 package io.github.G16.Model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -10,6 +11,7 @@ public class Card {
     private boolean faceUp;
     private Sprite sprite;
     private Sprite backSprite; // For card back
+    private TextureRegion textureRegion;
 
     private static final int CARD_WIDTH = 69; // Width of each card in the texture
     private static final int CARD_HEIGHT = 93; // Height of each card in the texture
@@ -19,6 +21,30 @@ public class Card {
         this.rank = rank;
         this.suit = suit;
         this.faceUp = false;
+
+        int row = suit.ordinal();
+        int col = rank.ordinal();
+
+
+        int xPos = col * (CARD_WIDTH + CARD_GAP);
+        int yPos = row * (CARD_HEIGHT + CARD_GAP);
+
+        Texture frontCardTexture = new Texture(Gdx.files.internal("poker_cards.png"));
+        // Extract the appropriate region from the texture
+        this.textureRegion = new TextureRegion(
+                frontCardTexture,
+                xPos,
+                yPos,
+                CARD_WIDTH,
+                CARD_HEIGHT
+        );
+        this.faceUp=true;
+        this.sprite = new Sprite(textureRegion);
+
+    }
+
+    public TextureRegion getTextureRegion(){
+        return this.textureRegion;
     }
 
     public Card(Rank rank, Suit suit, Texture frontCardTexture, Texture backCardTexture) {
@@ -61,21 +87,6 @@ public class Card {
         this.backSprite = new Sprite(backRegion);
     }
 
-    // value
-    public Rank getRank() {
-        return this.rank;
-    }
-
-    // suit
-    public Suit getSuit() {
-        return this.suit;
-    }
-
-    // faceUp
-    public boolean isFaceUp() {
-        return faceUp;
-    }
-
     public void setFaceUp(boolean faceUp) {
         this.faceUp = faceUp;
     }
@@ -85,18 +96,5 @@ public class Card {
         // Return the appropriate sprite based on face up/down state
         return faceUp ? this.sprite : this.backSprite;
     }
-
-    public Sprite getFrontSprite() {
-        return this.sprite;
-    }
-
-    public Sprite getBackSprite() {
-        return this.backSprite;
-    }
-
-    public void setSprite(Sprite sprite) {
-        this.sprite = sprite;
-    }
-
 
 }
