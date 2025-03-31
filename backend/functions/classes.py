@@ -1,4 +1,8 @@
 import random
+from treys import Card as treysCard
+from treys import Evaluator
+
+evaluator = Evaluator()
 
 class Card:
     def __init__(self, suit: str, rank: str):
@@ -18,11 +22,22 @@ class Card:
     def __str__(self):
         return f"{self.rank} of {self.suit}"
 
+def to_treys_format(card_array: list) -> list:
+    """Convert player cards to treys format"""
+    return [treysCard.new(card.rank + card.suit) for card in card_array]
+
+def eval_hand(board: list, player_cards: list) -> int:
+    """Evaluate the hand using treys"""
+    board_treys = to_treys_format(board)
+    player_cards_treys = to_treys_format(player_cards)
+    score = evaluator.evaluate(board_treys, player_cards_treys)
+    return score
+
 class CardDeck:
     def __init__(self):
         self.cards = []
-        suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
-        ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
+        suits = ["h", "d", "c", "s"]
+        ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
         for suit in suits:
             for rank in ranks:
                 self.cards.append(Card(suit, rank))
@@ -317,18 +332,47 @@ class Table:
         self.next_player()
 
     def evaluate_hands(self):
-        # In a real implementation, this would evaluate the best hand for each player
-        # For simplicity, we'll just distribute the pot evenly among active players
-        # TODO TODO TODO 
         active_players = self.get_active_players()
-        if active_players:
-            split_amount = self.pot // len(active_players)
-            for player_id in active_players:
-                self.players[player_id].stack += split_amount
-            self.pot = 0
+        if len(active_players) == 0:
+            return
+        scores = {}
+        for player_id in active_players:
+            player = self.players[player_id]
+            player_score = eval_hand(self.community_cards, player.cards)
+            scores[player_id] = player_score
+
+        # Sort players by score (lower is better)
+        sorted_players = sorted(scores.items(), key=lambda x: x[1])
+        
+        # Find all winners (players with the same best score)
+        best_score = sorted_players[0][1]
+        winners = []
+        
+        for player_id, score in sorted_players:
+            if score == best_score:
+                winners.append(player_id)
+            else:
+                # Since we've sorted by score, once we find a different score,
+                # we can break out of the loop
+                break
+        
+        # Distribute pot evenly among winners
+        if winners:
+            split_amount = self.pot // len(winners)
+            remainder = self.pot % len(winners)
             
+            for winner_id in winners:
+                self.players[winner_id].stack += split_amount
+                
+            # If there's a remainder, give it to the first winner
+            if remainder > 0 and winners:
+                self.players[winners[0]].stack += remainder
+
+        self.pot = 0
         self.status = "complete"
-        # Normally you would restart the game here
+
+        # TODO : Handle ties and side pots if necessary
+        # TODO : ready check before resetting the game - done from cloud function ??
 
     def to_dict(self):
         return {
