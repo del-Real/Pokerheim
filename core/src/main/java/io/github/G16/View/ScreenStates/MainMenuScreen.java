@@ -59,9 +59,9 @@ public class MainMenuScreen extends ScreenState {
             }
         });
 
-        // These are temporary
         stage.addActor(createLobbyButton);
 
+        // These are temporary
         // Debug
         TextButton debugButton = new TextButton("DEBUG", skin);
 

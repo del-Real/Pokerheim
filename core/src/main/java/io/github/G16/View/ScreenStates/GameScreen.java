@@ -3,14 +3,18 @@ package io.github.G16.View.ScreenStates;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 
 
 import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
 import io.github.G16.Model.Card;
+import io.github.G16.Model.Player;
 import io.github.G16.Model.Rank;
 import io.github.G16.Model.Suit;
 
@@ -76,14 +80,34 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(foldButton);
 
-        Card card = new Card(Rank.ACE, Suit.CLUBS);
-        TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+        //Temp
+        Player player=new Player(100);
+        player.getPlayerHand().addCard(new Card(Rank.ACE,Suit.CLUBS));
+        player.getPlayerHand().addCard(new Card(Rank.TEN,Suit.HEARTS));
+        //
 
-        Image cardImage = new Image(cardDrawable);
-        cardImage.setPosition((float) (Main.SCREEN_WIDTH * 0.75), (float) (Main.SCREEN_HEIGHT * 0.25));
-        cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
+        for (int i=0;i<player.getPlayerHand().getCards().size();i++){
+            Card card = player.getPlayerHand().getCards().get(i);
+            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+            Image cardImage = new Image(cardDrawable);
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
 
-        stage.addActor(cardImage);
+            cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
+            stage.addActor(cardImage);
+        }
+
+
+        Window chipsWindow = new Window("", skin);
+        chipsWindow.setPosition((float)(Main.SCREEN_WIDTH*0.10),(float)(Main.SCREEN_HEIGHT*0.275));
+        chipsWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
+        // The label is so that its easier to center
+        Label chipsLabel = new Label("Chips: "+player.getChips(),skin);
+        chipsLabel.setAlignment(Align.center);
+
+        chipsWindow.add(chipsLabel).expand().fill().center();
+
+        stage.addActor(chipsWindow);
+
 
     }
 
