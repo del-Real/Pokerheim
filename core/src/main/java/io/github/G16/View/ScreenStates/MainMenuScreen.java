@@ -18,7 +18,7 @@ public class MainMenuScreen extends ScreenState {
     @Override
     public void show() {
         super.show();
-        Gdx.gl.glClearColor(0, 1, 0, 1);
+        Gdx.gl.glClearColor(0.32f, 0.57f, 0.44f, 1f);
 
         skin.getFont("font").getData().setScale(4f);
 

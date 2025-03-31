@@ -1,6 +1,7 @@
 package io.github.G16.View.ScreenStates;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -12,6 +13,7 @@ import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
 import io.github.G16.Model.Card;
 import io.github.G16.Model.Deck;
+import io.github.G16.Model.Rank;
 
 public class DebugScreen extends ScreenState{
 
@@ -64,6 +66,8 @@ public class DebugScreen extends ScreenState{
 
     @Override
     public void render(float delta) {
+        // Set the background color to RGB: 82, 146, 112 (normalize to 0-1 range)
+        Gdx.gl.glClearColor(82/255f, 146/255f, 112/255f, 1f);
         super.render(delta);
 
         batch.begin();
@@ -87,9 +91,31 @@ public class DebugScreen extends ScreenState{
             float posX = startX + col * (card.getSprite().getWidth() + cardSpacing);
             float posY = startY - row * (card.getSprite().getHeight() + cardSpacing);
 
-            // Position and draw the card
-            card.getSprite().setPosition(posX, posY);
-            card.getSprite().draw(batch);
+            // Use the new renderCard method
+            renderCard(card, posX, posY);
+        }
+
+        // TEST CODE: Render a single card in the center of the screen with different scales
+        if (!cards.isEmpty()) {
+            // Get a reference card (Ace of Spades if available, otherwise first card)
+            Card testCard = cards.get(0);
+
+            if (testCard != null) {
+                testCard.setFaceUp(true);
+
+                // Center of screen
+                float centerX = Gdx.graphics.getWidth() / 2f;
+                float centerY = Gdx.graphics.getHeight() / 2f;
+
+                // Calculate time-based scaling for animation effect
+                float scale = 2.5f + 1.5f * (float) Math.sin(Gdx.graphics.getFrameId() * 0.05f);
+
+                // Render the card at the center of the screen with animated scaling
+                renderCard(testCard,
+                        centerX - (testCard.getSprite().getWidth() * scale / 2),
+                        centerY - (testCard.getSprite().getHeight() * scale / 2),
+                        scale);
+            }
         }
 
         batch.end();
@@ -100,5 +126,29 @@ public class DebugScreen extends ScreenState{
         super.dispose();
         batch.dispose();
         deck.dispose(); // Make sure to dispose the deck to free the texture
+    }
+
+    public void renderCard(Card card, float x, float y, float scale) {
+        if (card == null) return;
+
+        Sprite sprite = card.getSprite();
+
+        // Save original scale
+        float originalScaleX = sprite.getScaleX();
+        float originalScaleY = sprite.getScaleY();
+
+        // Set position and scale
+        sprite.setPosition(x, y);
+        sprite.setScale(scale);
+
+        // Draw the card
+        sprite.draw(batch);
+
+        // Restore original scale
+        sprite.setScale(originalScaleX, originalScaleY);
+    }
+
+    public void renderCard(Card card, float x, float y) {
+        renderCard(card, x, y, 1.0f);
     }
 }

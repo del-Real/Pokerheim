@@ -97,4 +97,6 @@ public class Card {
     public void setSprite(Sprite sprite) {
         this.sprite = sprite;
     }
+
+
 }
