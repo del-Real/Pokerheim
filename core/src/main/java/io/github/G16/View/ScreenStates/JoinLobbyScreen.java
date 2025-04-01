@@ -36,18 +36,48 @@ public class JoinLobbyScreen extends ScreenState {
         stage.addActor(backButton);
 
         Label infoLabel = new Label("Enter Lobby Code:", skin);
-        infoLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.55));
+        infoLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.60));
 
         infoLabel.setAlignment(Align.center);
+        stage.addActor(infoLabel);
 
         TextField codeField = new TextField("Enter code here...", skin);
-        codeField.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.4));
+        codeField.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.45));
         codeField.setSize((float) (Main.SCREEN_WIDTH * 0.5), (float) (Main.SCREEN_HEIGHT * 0.1));
 
         codeField.setAlignment(Align.center);
 
+        codeField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (codeField.getText().equals("Enter code here...")) {
+                    codeField.setText("");
+                }
+            }
+        });
+
+        stage.addActor(codeField);
+
+
+        TextField nameField = new TextField("Enter name here...", skin);
+        nameField.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.30));
+        nameField.setSize((float) (Main.SCREEN_WIDTH * 0.5), (float) (Main.SCREEN_HEIGHT * 0.1));
+
+        nameField.setAlignment(Align.center);
+
+
+        nameField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (nameField.getText().equals("Enter name here...")) {
+                    nameField.setText("");
+                }
+            }
+        });
+        stage.addActor(nameField);
+
         TextButton confirmButton = new TextButton("CONFIRM", skin);
-        confirmButton.setPosition((float) (Main.SCREEN_WIDTH * 0.40), (float) (Main.SCREEN_HEIGHT * 0.35));
+        confirmButton.setPosition((float) (Main.SCREEN_WIDTH * 0.40), (float) (Main.SCREEN_HEIGHT * 0.20));
         confirmButton.setSize((float) (Main.SCREEN_WIDTH * 0.2), (float) (Main.SCREEN_HEIGHT * 0.05));
 
         confirmButton.getLabel().setFontScale(2f);
@@ -64,8 +94,6 @@ public class JoinLobbyScreen extends ScreenState {
             }
         });
 
-        stage.addActor(infoLabel);
-        stage.addActor(codeField);
         stage.addActor(confirmButton);
     }
 }

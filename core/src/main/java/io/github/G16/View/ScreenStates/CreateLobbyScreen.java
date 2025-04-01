@@ -3,6 +3,7 @@ package io.github.G16.View.ScreenStates;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
@@ -21,10 +22,11 @@ public class CreateLobbyScreen extends ScreenState{
     public void show(){
         super.show();
 
+        skin.getFont("font").getData().setScale(4f);
 
         TextButton gameSettingsButton = new TextButton("GAME SETTINGS", skin);
-        gameSettingsButton.setPosition((float) (Main.SCREEN_WIDTH*0.3), (float) (Main.SCREEN_HEIGHT * 0.6));
-        gameSettingsButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float) (Main.SCREEN_HEIGHT*0.05));
+        gameSettingsButton.setPosition((float) (Main.SCREEN_WIDTH*0.25), (float) (Main.SCREEN_HEIGHT * 0.6));
+        gameSettingsButton.setSize((float) (Main.SCREEN_WIDTH*0.5), (float) (Main.SCREEN_HEIGHT*0.1));
         gameSettingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y){
@@ -33,7 +35,6 @@ public class CreateLobbyScreen extends ScreenState{
         });
 
 
-        skin.getFont("font").getData().setScale(4f);
 
         TextButton backButton = new TextButton("<", skin);
         backButton.setPosition((float) (0), (float) (Main.SCREEN_HEIGHT*0.9));
@@ -48,7 +49,7 @@ public class CreateLobbyScreen extends ScreenState{
         stage.addActor(backButton);
 
         Window codeField = new Window("", skin);
-        codeField.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.4));
+        codeField.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.45));
         codeField.setSize((float) (Main.SCREEN_WIDTH * 0.5), (float) (Main.SCREEN_HEIGHT * 0.1));
 
         Label codeLabel = new Label("Lobby Code", skin);
@@ -56,8 +57,25 @@ public class CreateLobbyScreen extends ScreenState{
 
         codeField.add(codeLabel).expand().fill().center();
 
+        TextField nameField = new TextField("Enter name here...", skin);
+        nameField.setPosition((float) (Main.SCREEN_WIDTH * 0.25), (float) (Main.SCREEN_HEIGHT * 0.30));
+        nameField.setSize((float) (Main.SCREEN_WIDTH * 0.5), (float) (Main.SCREEN_HEIGHT * 0.1));
+
+        nameField.setAlignment(Align.center);
+
+
+        nameField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (nameField.getText().equals("Enter name here...")) {
+                    nameField.setText("");
+                }
+            }
+        });
+        stage.addActor(nameField);
+
         TextButton generateButton = new TextButton("GENERATE LOBBY CODE", skin);
-        generateButton.setPosition((float) (Main.SCREEN_WIDTH * 0.3), (float) (Main.SCREEN_HEIGHT * 0.35));
+        generateButton.setPosition((float) (Main.SCREEN_WIDTH * 0.3), (float) (Main.SCREEN_HEIGHT * 0.20));
         generateButton.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.05));
 
         generateButton.getLabel().setFontScale(2f);
@@ -73,7 +91,6 @@ public class CreateLobbyScreen extends ScreenState{
 
                 // When the code is generated
 
-                skin.getFont("font").getData().setScale(2f);
                 stage.addActor(gameSettingsButton);
             }
         });

@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Align;
 import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
 import io.github.G16.Model.Card;
+import io.github.G16.Model.GameState;
 import io.github.G16.Model.Player;
 import io.github.G16.Model.Rank;
 import io.github.G16.Model.Suit;
@@ -108,6 +109,31 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(chipsWindow);
 
+        //Temp
+        GameState gameState= new GameState();
+        //
+
+        for (int i=0;i<gameState.getCommunityCards().size();i++){
+            Card card = gameState.getCommunityCards().get(i);
+            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+            Image cardImage = new Image(cardDrawable);
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.5));
+
+            cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
+            stage.addActor(cardImage);
+
+        }
+
+        Window potWindow = new Window("", skin);
+        potWindow.setPosition((float)(Main.SCREEN_WIDTH*0.35),(float)(Main.SCREEN_HEIGHT*0.8));
+        potWindow.setSize((float)(Main.SCREEN_WIDTH*0.30),(float)(Main.SCREEN_HEIGHT*0.075));
+        // The label is so that its easier to center
+        Label potLabel = new Label("Pot: "+gameState.getPot(),skin);
+        potLabel.setAlignment(Align.center);
+
+        potWindow.add(potLabel).expand().fill().center();
+
+        stage.addActor(potWindow);
 
     }
 
