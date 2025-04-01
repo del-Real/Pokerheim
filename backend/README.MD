@@ -1,8 +1,10 @@
 # Our lovely backend
 ## Setup
-1. Set up firebase CLI
+1. Set up firebase CLI (https://firebase.google.com/docs/cli)
 2. `firebase login`
-3. `firebase functions init` - set up your python venv, i didnt want to push it up to git
+3. from the backend directory:
+    - `pip install virtualenv` (if you dont have it already)
+    - `virtualenv functions\venv && functions\venv\Scripts\activate.bat && pip install -r requirements.txt`
 
 its more detailed here: https://firebase.google.com/docs/functions/get-started?gen=2nd#python \
 <b>backend is in python because i love python, sorry not sorry </b>
