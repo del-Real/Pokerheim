@@ -102,12 +102,11 @@ public class CreateLobbyScreen extends ScreenState{
         stage.addActor(generateButton);
     }
     private void generateLobbyCode(Label codeLabel) {
-        String tableId = "table" + System.currentTimeMillis(); // Genera un ID unico
-        String url = "http://10.24.211.40:5001/pokergame-007/us-central1/createTable?tableId=" + tableId;
-
-        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.GET);
+        String tableId = "" + System.currentTimeMillis();
+        String url = "https://us-central1-pokergame-007.cloudfunctions.net/createTable?tableId=table" + tableId;
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
         request.setUrl(url);
-        request.setTimeOut(5000); // Timeout di 5 secondi
+        request.setTimeOut(5000);
 
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
@@ -115,7 +114,7 @@ public class CreateLobbyScreen extends ScreenState{
                 int statusCode = httpResponse.getStatus().getStatusCode();
                 if (statusCode == HttpStatus.SC_OK) {
                     Gdx.app.log("HTTP", "Lobby Created Successfully: " + tableId);
-                    codeLabel.setText("Lobby Code: " + tableId);
+                    codeLabel.setText(tableId);
                 } else {
                     Gdx.app.log("HTTP", "Error creating lobby: " + statusCode);
                     codeLabel.setText("Failed to create lobby");
