@@ -20,7 +20,6 @@ public class Card {
     public Card(Rank rank, Suit suit) {
         this.rank = rank;
         this.suit = suit;
-        this.faceUp = false;
 
         int row = suit.ordinal();
         int col = rank.ordinal();
