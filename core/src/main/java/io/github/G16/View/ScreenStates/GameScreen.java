@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -29,7 +30,7 @@ public class GameScreen extends ScreenState{
     public void show(){
         super.show();
 
-        skin.getFont("font").getData().setScale(2.5f);
+        skin.getFont("font").getData().setScale(3f);
 
         TextButton checkButton = new TextButton("CHECK", skin);
         checkButton.setPosition((float) (Main.SCREEN_WIDTH*0.05),(float)(Main.SCREEN_HEIGHT*0.05));
@@ -55,19 +56,7 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(callButton);
 
-        skin.getFont("font").getData().setScale(3f);
-
-        TextButton raiseButton = new TextButton("RAISE", skin);
-        raiseButton.setPosition((float) (Main.SCREEN_WIDTH*0.05),(float)(Main.SCREEN_HEIGHT*0.15));
-        raiseButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
-        raiseButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                System.out.println("Raise");
-            }
-        });
-
-        stage.addActor(raiseButton);
+        raiseLogic();
 
         TextButton foldButton = new TextButton("FOLD", skin);
         foldButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.15));
@@ -117,7 +106,7 @@ public class GameScreen extends ScreenState{
             Card card = gameState.getCommunityCards().get(i);
             TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
             Image cardImage = new Image(cardDrawable);
-            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.5));
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
 
             cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
             stage.addActor(cardImage);
@@ -137,4 +126,56 @@ public class GameScreen extends ScreenState{
 
     }
 
+    private void raiseLogic(){
+
+        // Unfinished
+
+        TextButton raiseButton = new TextButton("RAISE", skin);
+        raiseButton.setPosition((float) (Main.SCREEN_WIDTH*0.05),(float)(Main.SCREEN_HEIGHT*0.15));
+        raiseButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
+        raiseButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                System.out.println("Raise");
+            }
+        });
+
+        stage.addActor(raiseButton);
+
+        final Window raiseWindow = new Window("Raise Amount", skin);
+        raiseWindow.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.175));
+        raiseWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.3), (float) (Main.SCREEN_HEIGHT * 0.5));
+        raiseWindow.setVisible(false);
+
+        final TextField raiseAmountField = new TextField("", skin);
+        raiseAmountField.setMessageText("Enter amount");
+        raiseAmountField.setAlignment(Align.center);
+        raiseWindow.add(raiseAmountField).expandX().fillX().pad(10);
+        raiseWindow.row();
+
+        TextButton confirmRaiseButton = new TextButton("CONFIRM", skin);
+        confirmRaiseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                String amountText = raiseAmountField.getText();
+                try {
+                    int raiseAmount = Integer.parseInt(amountText);
+                    System.out.println("Raise of: " + raiseAmount);
+                    raiseWindow.setVisible(false);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input, enter a number.");
+                }
+            }
+        });
+
+        raiseWindow.add(confirmRaiseButton).pad(10);
+        stage.addActor(raiseWindow);
+
+        raiseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                raiseWindow.setVisible(true);
+            }
+        });
+    }
 }
