@@ -4,7 +4,7 @@
 2. `firebase login`
 3. from the backend directory:
     - `pip install virtualenv` (if you dont have it already)
-    - `virtualenv functions\venv && functions\venv\Scripts\activate.bat && pip install -r requirements.txt`
+    - `virtualenv .\functions\venv && .\functions\venv\Scripts\activate.bat && pip install -r .\functions\requirements.txt`
 
 its more detailed here: https://firebase.google.com/docs/functions/get-started?gen=2nd#python \
 <b>backend is in python because i love python, sorry not sorry </b>
