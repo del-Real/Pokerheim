@@ -1,15 +1,22 @@
 package io.github.G16.Model;
 
 public class Player {
-    PlayerHand playerHand;
-    int chips;
-    public Player(int chips){
+
+    private String playerID;
+    private PlayerHand playerHand;
+    private String name;
+    private int chips;
+    public Player(String playerID, String name){
+        this.playerID=playerID;
         this.playerHand=new PlayerHand();
-        this.chips=chips;
     }
 
     public PlayerHand getPlayerHand() {
         return this.playerHand;
+    }
+
+    public void setChips(int chips) {
+        this.chips = chips;
     }
 
     public int getChips() {

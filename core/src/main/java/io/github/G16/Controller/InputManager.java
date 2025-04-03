@@ -10,20 +10,25 @@ import io.github.G16.View.ViewManager;
 public class InputManager implements InputProcessor {
     private ViewManager viewManager;
     private InputProcessor currentInputProcessor;
+    private static InputManager instance;
 
-    public InputManager(ViewManager viewManager) {
+    private InputManager(ViewManager viewManager) {
         this.viewManager = viewManager;
-
-        //I tried to make so that when you go back with your phone it goes to the previous screen but I failed
-        //Gdx.input.setCatchKey(Input.Keys.BACK, true);
     }
-
+    public static InputManager getInstance(ViewManager viewManager) {
+        if (instance == null) {
+            synchronized (InputManager.class) {
+                if (instance == null) {
+                    instance = new InputManager(viewManager);
+                }
+            }
+        }
+        return instance;
+    }
     public void setInputProcessor(InputProcessor inputProcessor) {
         this.currentInputProcessor = inputProcessor;
         Gdx.input.setInputProcessor(inputProcessor);
     }
-
-
     public void changeScreen(ScreenState screen) {
         viewManager.setScreen(screen);
     }

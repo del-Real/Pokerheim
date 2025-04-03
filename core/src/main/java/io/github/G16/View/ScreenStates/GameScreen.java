@@ -71,7 +71,7 @@ public class GameScreen extends ScreenState{
         stage.addActor(foldButton);
 
         //Temp
-        Player player=new Player(100);
+        Player player=new Player("0", "Alberto");
         player.getPlayerHand().addCard(new Card(Rank.ACE,Suit.CLUBS));
         player.getPlayerHand().addCard(new Card(Rank.TEN,Suit.HEARTS));
         //
@@ -127,7 +127,6 @@ public class GameScreen extends ScreenState{
     }
 
     private void raiseLogic(){
-
         // Unfinished
 
         TextButton raiseButton = new TextButton("RAISE", skin);
@@ -142,16 +141,20 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(raiseButton);
 
-        final Window raiseWindow = new Window("Raise Amount", skin);
-        raiseWindow.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.175));
+        final Window raiseWindow = new Window("", skin);
+        raiseWindow.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.2));
         raiseWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.3), (float) (Main.SCREEN_HEIGHT * 0.5));
         raiseWindow.setVisible(false);
+
+        Label raiseLabel = new Label("Raise Amount", skin);
+        raiseLabel.setAlignment(Align.center);
+        raiseWindow.add(raiseLabel).expandX().fillX().pad(10);
 
         final TextField raiseAmountField = new TextField("", skin);
         raiseAmountField.setMessageText("Enter amount");
         raiseAmountField.setAlignment(Align.center);
-        raiseWindow.add(raiseAmountField).expandX().fillX().pad(10);
         raiseWindow.row();
+        raiseWindow.add(raiseAmountField).expandX().fillX().pad(10);
 
         TextButton confirmRaiseButton = new TextButton("CONFIRM", skin);
         confirmRaiseButton.addListener(new ClickListener() {
@@ -160,15 +163,21 @@ public class GameScreen extends ScreenState{
                 String amountText = raiseAmountField.getText();
                 try {
                     int raiseAmount = Integer.parseInt(amountText);
+                    if (raiseAmount <= 0){ // Add other checks (raise < chips) ...
+                        throw new NumberFormatException();
+                    }
                     System.out.println("Raise of: " + raiseAmount);
                     raiseWindow.setVisible(false);
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid input, enter a number.");
+                    raiseLabel.setText("Invalid input");
+                    System.out.println("Invalid input");
                 }
             }
         });
 
+        raiseWindow.row();
         raiseWindow.add(confirmRaiseButton).pad(10);
+
         stage.addActor(raiseWindow);
 
         raiseButton.addListener(new ClickListener() {
