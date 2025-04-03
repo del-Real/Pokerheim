@@ -20,6 +20,7 @@ public class InputManager implements InputProcessor {
             synchronized (InputManager.class) {
                 if (instance == null) {
                     instance = new InputManager(viewManager);
+
                 }
             }
         }

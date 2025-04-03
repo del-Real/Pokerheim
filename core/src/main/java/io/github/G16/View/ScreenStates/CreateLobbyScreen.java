@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
 import io.github.G16.Controller.InputManager;
+import io.github.G16.Controller.PlayerController;
 import io.github.G16.Main;
 
 public class CreateLobbyScreen extends ScreenState{
@@ -90,47 +91,18 @@ public class CreateLobbyScreen extends ScreenState{
                 Make so that when a code is generated the button text become ready and the
                 clicked function makes the player ready
                  */
-                generateLobbyCode(codeLabel);
+
+                PlayerController.getInstance().createLobby(codeLabel);
 
                 // When the code is generated
 
                 stage.addActor(gameSettingsButton);
+
+                // Make it so that when it presses ready it joins the lobby
             }
         });
 
         stage.addActor(codeField);
         stage.addActor(generateButton);
-    }
-    private void generateLobbyCode(Label codeLabel) {
-        String tableId = "" + System.currentTimeMillis();
-        String url = "https://us-central1-pokergame-007.cloudfunctions.net/createTable?tableId=table" + tableId;
-        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
-        request.setUrl(url);
-        request.setTimeOut(5000);
-
-        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
-            @Override
-            public void handleHttpResponse(Net.HttpResponse httpResponse) {
-                int statusCode = httpResponse.getStatus().getStatusCode();
-                if (statusCode == HttpStatus.SC_OK) {
-                    Gdx.app.log("HTTP", "Lobby Created Successfully: " + tableId);
-                    codeLabel.setText(tableId);
-                } else {
-                    Gdx.app.log("HTTP", "Error creating lobby: " + statusCode);
-                    codeLabel.setText("Failed to create lobby");
-                }
-            }
-
-            @Override
-            public void failed(Throwable t) {
-                Gdx.app.log("HTTP", "Request failed: " + t.getMessage());
-                codeLabel.setText("Connection Error");
-            }
-
-            @Override
-            public void cancelled() {
-                Gdx.app.log("HTTP", "Request cancelled");
-            }
-        });
     }
 }
