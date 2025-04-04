@@ -7,7 +7,7 @@ public class ViewManager {
     private static ViewManager instance;
 
     private ScreenState screen;
-    private Game game;
+    private final Game game;
     private ViewManager(Game game) {
         this.game = game;
     }

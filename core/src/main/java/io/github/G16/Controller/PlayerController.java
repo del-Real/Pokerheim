@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import io.github.G16.Model.Player;
-import io.github.G16.View.ViewManager;
 
 public class PlayerController {
     private Player player;
@@ -37,6 +36,7 @@ public class PlayerController {
                     player=new Player(extractPlayerId(responseText),name);
                     System.out.println(extractPlayerId(responseText));
                     codeField.setText("Joined lobby successfully");
+                    InputManager.getInstance(null,null).listenForUpdates("tables","table"+code);
                 } else {
                     Gdx.app.log("HTTP", "Error joining lobby: "+statusCode);
 

@@ -3,6 +3,7 @@ package io.github.G16;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
+import io.github.G16.Controller.FirestoreUpdateListener;
 import io.github.G16.Controller.InputManager;
 import io.github.G16.View.ScreenStates.LaunchLoadingScreen;
 import io.github.G16.View.ViewManager;
@@ -16,16 +17,18 @@ public class Main extends Game {
     // Cambia il tipo di viewManager e inputManager per usare il Singleton
     private ViewManager viewManager;
     private InputManager inputManager;
+    private final FirestoreUpdateListener firestoreListener;
 
+    public Main(FirestoreUpdateListener firestoreListener){
+        this.firestoreListener = firestoreListener;
+    }
     @Override
     public void create() {
-        this.viewManager = ViewManager.getInstance(this);  // Ora ViewManager è un Singleton
-        this.inputManager = InputManager.getInstance(viewManager);  // Ora InputManager è un Singleton
+        this.viewManager = ViewManager.getInstance(this);
+        this.inputManager = InputManager.getInstance(viewManager, firestoreListener);
 
-        // Imposta la schermata iniziale
         this.viewManager.setScreen(new LaunchLoadingScreen(inputManager));
 
-        // Imposta le dimensioni dello schermo
         SCREEN_WIDTH = Gdx.graphics.getWidth();
         SCREEN_HEIGHT = Gdx.graphics.getHeight();
     }
@@ -34,7 +37,7 @@ public class Main extends Game {
     public void render() {
         super.render();
         float delta = Gdx.graphics.getDeltaTime();
-        viewManager.getScreen().render(delta);  // Rende la schermata corrente
+        viewManager.getScreen().render(delta);
     }
 
     @Override
@@ -45,6 +48,6 @@ public class Main extends Game {
 
     @Override
     public void dispose() {
-        viewManager.getScreen().dispose();  // Pulisce la schermata corrente
+        viewManager.getScreen().dispose();
     }
 }

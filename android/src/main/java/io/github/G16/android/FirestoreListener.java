@@ -1,13 +1,14 @@
 package io.github.G16.android;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
-public class FirestoreListener {
+import io.github.G16.Controller.FirestoreUpdateListener;
+
+public class FirestoreListener implements FirestoreUpdateListener {
 
     private final FirebaseFirestore firestore;
     private ListenerRegistration registration;
@@ -15,23 +16,22 @@ public class FirestoreListener {
     public FirestoreListener() {
         firestore = FirebaseFirestore.getInstance();
     }
-    public void listenForCollectionUpdates() {
-        registration = firestore.collection("players")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+    public void listenForUpdates(String collection, String document) {
+        registration = firestore.collection(collection)
+                .document(document)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
-                    public void onEvent(QuerySnapshot snapshot, FirebaseFirestoreException e) {
+                    public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
                         if (e != null) {
                             System.out.println("Listen failed: " + e);
                             return;
                         }
 
-                        if (snapshot != null && !snapshot.isEmpty()) {
-                            for (DocumentSnapshot document : snapshot.getDocuments()) {
-                                System.out.println("Document updated: " + document.getId());
-                                System.out.println("Content: " + document.getData());
-                            }
+                        if (snapshot != null && snapshot.exists()) {
+                            System.out.println("Document updated: " + snapshot.getId());
+                            System.out.println("Content: " + snapshot.getData());
                         } else {
-                            System.out.println("No document found");
+                            System.out.println("Document does not exist");
                         }
                     }
                 });

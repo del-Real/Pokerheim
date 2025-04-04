@@ -15,8 +15,7 @@ public class AndroidLauncher extends AndroidApplication {
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true; // Recommended, but not required.
         FirestoreListener db = new FirestoreListener();
-        db.listenForCollectionUpdates();
-        initialize(new Main(), configuration);
+        initialize(new Main(db), configuration);
 
     }
 }
