@@ -1,6 +1,7 @@
 back_card.png
 libgdx.png
 poker_cards.png
+pokerheim_logo.png
 uiskin/raw/199x-export.fnt
 uiskin/raw/199x-export.png
 uiskin/raw/199x.png
