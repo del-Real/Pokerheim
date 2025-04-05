@@ -12,14 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
 
+import java.util.ArrayList;
+
 import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
 import io.github.G16.Model.Card;
-import io.github.G16.Model.GameState;
-import io.github.G16.Model.Player;
 import io.github.G16.Model.PlayerTable;
-import io.github.G16.Model.Rank;
-import io.github.G16.Model.Suit;
 import io.github.G16.View.ObserverScreen;
 
 public class GameScreen extends ScreenState implements ObserverScreen {
@@ -104,9 +102,9 @@ public class GameScreen extends ScreenState implements ObserverScreen {
 
         */
         //Temp
-        GameState gameState= new GameState();
+        //GameState gameState= new GameState();
         //
-
+        /*
         for (int i=0;i<gameState.getCommunityCards().size();i++){
             Card card = gameState.getCommunityCards().get(i);
             TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
@@ -118,11 +116,13 @@ public class GameScreen extends ScreenState implements ObserverScreen {
 
         }
 
+        */
+
         Window potWindow = new Window("", skin);
         potWindow.setPosition((float)(Main.SCREEN_WIDTH*0.35),(float)(Main.SCREEN_HEIGHT*0.8));
         potWindow.setSize((float)(Main.SCREEN_WIDTH*0.30),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
-        potLabel = new Label("Pot: "+gameState.getPot(),skin);
+        potLabel = new Label("Pot: 0",skin);
         potLabel.setAlignment(Align.center);
 
         potWindow.add(potLabel).expand().fill().center();
@@ -196,6 +196,59 @@ public class GameScreen extends ScreenState implements ObserverScreen {
     @Override
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");
-        potLabel.setText(playerTable.getPot());
+        potLabel.setText("Pot: "+playerTable.getPot());
+        ArrayList<Card> communityCards = playerTable.getCommunityCards();
+        int i=0;
+        for (Card card: communityCards){
+            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+            Image cardImage = new Image(cardDrawable);
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
+
+            cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
+            stage.addActor(cardImage);
+            i++;
+        }
+
+        ArrayList<Card> playerHand = playerTable.getPlayerHand();
+        i=0;
+        for (Card card: playerHand){
+            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+            Image cardImage = new Image(cardDrawable);
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
+
+            cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
+            stage.addActor(cardImage);
+            i++;
+        }
+        /*
+
+                //Temp
+        Player player=new Player("0", "Alberto");
+        player.getPlayerHand().addCard(new Card(Rank.ACE,Suit.CLUBS));
+        player.getPlayerHand().addCard(new Card(Rank.TEN,Suit.HEARTS));
+        //
+
+        for (int i=0;i<player.getPlayerHand().getCards().size();i++){
+            Card card = player.getPlayerHand().getCards().get(i);
+            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+            Image cardImage = new Image(cardDrawable);
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
+
+            cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
+            stage.addActor(cardImage);
+        }
+        for (int i=0;i<gameState.getCommunityCards().size();i++){
+            Card card = gameState.getCommunityCards().get(i);
+            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
+            Image cardImage = new Image(cardDrawable);
+            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
+
+            cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
+            stage.addActor(cardImage);
+
+        }
+
+        */
+
     }
 }

@@ -40,12 +40,11 @@ public class FirestoreListener implements FirestoreTableListener {
                         if (value != null && value.exists()){
                             System.out.println("Document updated: " + value.getId());
                             System.out.println("Content: "+value.getData());
-                            // Parse fields
+
                             Long pot = value.getLong("pot");
                             String currentTurn = value.getString("currentTurn");
-
                             ArrayList<Card> communityCards = new ArrayList<>();
-                            List<Map<String, Object>> rawCards = (List<Map<String, Object>>) value.get("communityCards");
+                            List<Map<String, Object>> rawCards = (List<Map<String, Object>>) value.get("community_cards");
                             if (rawCards != null) {
                                 for (Map<String, Object> cardData : rawCards) {
                                     String suitStr = (String) cardData.get("suit");
@@ -61,38 +60,47 @@ public class FirestoreListener implements FirestoreTableListener {
                             }
 
 
-                            // Update playerTable
-                            if (pot != null && currentTurn != null) {
-                                playerTable.updateTable(pot.intValue(), currentTurn, communityCards);
-                                System.out.println("PlayerTable updated!");
-                            } else {
-                                System.out.println("Missing data to update PlayerTable.");
+                            // Get only the player's hand based on playerId
+                            Map<String, Object> playersData = (Map<String, Object>) value.get("players");
+                            if (playersData != null && playersData.containsKey(playerTable.getPlayerId())) {
+                                Map<String, Object> playerData = (Map<String, Object>) playersData.get(playerTable.getPlayerId());
+
+                                List<Map<String, String>> rawCardsList = (List<Map<String, String>>) playerData.get("cards");
+                                ArrayList<Card> playerCards = new ArrayList<>();
+                                if (rawCardsList != null) {
+                                    for (Map<String, String> cardData : rawCardsList) {
+
+                                        String suitStr = cardData.get("suit");
+                                        String rankStr = cardData.get("rank");
+
+                                        if (suitStr != null && rankStr != null) {
+                                            try {
+                                                Suit suit = Suit.fromString(suitStr);
+                                                Rank rank = Rank.fromString(rankStr);
+                                                playerCards.add(new Card(rank,suit));
+                                            } catch (IllegalArgumentException e) {
+                                                System.out.println("Error while converting card: " + e.getMessage());
+                                            }
+                                        } else {
+                                            System.out.println("Error: Missing rank or suit for card");
+                                        }
+                                    }
+
+                                }
+
+
+                                // Update playerTable
+                                if (pot != null && currentTurn != null) {
+                                    playerTable.updateTable(pot.intValue(), currentTurn, communityCards, playerCards);
+                                    System.out.println("PlayerTable updated!");
+                                } else {
+                                    System.out.println("Missing data to update PlayerTable.");
+                                }
                             }
                         }
                     }
                 });
     }
-    public void listenForUpdates(String collection, String document) {
-        registration = firestore.collection(collection)
-                .document(document)
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
-                        if (e != null) {
-                            System.out.println("Listen failed: " + e);
-                            return;
-                        }
-
-                        if (snapshot != null && snapshot.exists()) {
-                            System.out.println("Document updated: " + snapshot.getId());
-                            System.out.println("Content: " + snapshot.getData());
-                        } else {
-                            System.out.println("Document does not exist");
-                        }
-                    }
-                });
-    }
-
     public void stopListening() {
         if (registration != null) {
             registration.remove();

@@ -53,6 +53,7 @@ public class Card {
 
         // Create texture regions for front and back of card
         initializeSprites(frontCardTexture, backCardTexture);
+        System.out.println(rank + " " + suit);
     }
 
     private void initializeSprites(Texture frontCardTexture, Texture backCardTexture) {
@@ -95,5 +96,4 @@ public class Card {
         // Return the appropriate sprite based on face up/down state
         return faceUp ? this.sprite : this.backSprite;
     }
-
 }

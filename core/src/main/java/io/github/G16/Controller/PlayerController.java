@@ -7,13 +7,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Timer;
 
-import io.github.G16.Model.Player;
 import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.GameScreen;
-import io.github.G16.View.ScreenStates.MainMenuScreen;
 
 public class PlayerController {
-    private Player player;
     private String joinLobbyUrl;
     private static PlayerController instance;
 
@@ -39,10 +36,9 @@ public class PlayerController {
                     Gdx.app.log("HTTP","Joined lobby successfully: "+code);
 
                     String responseText = httpResponse.getResultAsString();
-                    //player=new Player(extractPlayerId(responseText),name);
                     System.out.println(extractPlayerId(responseText));
                     codeField.setText("Joined lobby successfully");
-                    currentTable = new PlayerTable(code);
+                    currentTable = new PlayerTable(code, extractPlayerId(responseText));
                     InputManager.getInstance(null,null).listenForTableUpdates(currentTable);
 
                     // This is temporary, player should set ready to enter
@@ -50,8 +46,8 @@ public class PlayerController {
                         @Override
                         public void run() {
                             GameScreen gameScreen = new GameScreen(InputManager.getInstance(null,null));
-                            currentTable.addObserver(gameScreen);
                             InputManager.getInstance(null,null).changeScreen(gameScreen);
+                            currentTable.addObserver(gameScreen);
                         }
                     }, 0.5f);
                 } else {
