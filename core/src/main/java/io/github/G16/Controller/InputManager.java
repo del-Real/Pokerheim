@@ -3,21 +3,22 @@ package io.github.G16.Controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 
+import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.ScreenState;
 import io.github.G16.View.ViewManager;
 
 
 public class InputManager implements InputProcessor {
     private final ViewManager viewManager;
-    private final FirestoreUpdateListener firestoreListener;
+    private final FirestoreTableListener firestoreListener;
     private InputProcessor currentInputProcessor;
     private static InputManager instance;
 
-    private InputManager(ViewManager viewManager, FirestoreUpdateListener firestoreListener) {
+    private InputManager(ViewManager viewManager, FirestoreTableListener firestoreListener) {
         this.viewManager = viewManager;
         this.firestoreListener = firestoreListener;
     }
-    public static InputManager getInstance(ViewManager viewManager, FirestoreUpdateListener firestoreListener) {
+    public static InputManager getInstance(ViewManager viewManager, FirestoreTableListener firestoreListener) {
         if (instance == null) {
             synchronized (InputManager.class) {
                 if (instance == null) {
@@ -36,8 +37,8 @@ public class InputManager implements InputProcessor {
         viewManager.setScreen(screen);
     }
 
-    public void listenForUpdates(String collection, String document){
-        firestoreListener.listenForUpdates(collection,document);
+    public void listenForTableUpdates(PlayerTable playerTable){
+        firestoreListener.listenForTableUpdates(playerTable);
     }
 
     // Idk what these do

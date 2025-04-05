@@ -3,7 +3,7 @@ package io.github.G16;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
-import io.github.G16.Controller.FirestoreUpdateListener;
+import io.github.G16.Controller.FirestoreTableListener;
 import io.github.G16.Controller.InputManager;
 import io.github.G16.View.ScreenStates.LaunchLoadingScreen;
 import io.github.G16.View.ViewManager;
@@ -17,9 +17,9 @@ public class Main extends Game {
     // Cambia il tipo di viewManager e inputManager per usare il Singleton
     private ViewManager viewManager;
     private InputManager inputManager;
-    private final FirestoreUpdateListener firestoreListener;
+    private final FirestoreTableListener firestoreListener;
 
-    public Main(FirestoreUpdateListener firestoreListener){
+    public Main(FirestoreTableListener firestoreListener){
         this.firestoreListener = firestoreListener;
     }
     @Override

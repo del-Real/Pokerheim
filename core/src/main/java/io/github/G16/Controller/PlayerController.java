@@ -5,13 +5,19 @@ import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.utils.Timer;
 
 import io.github.G16.Model.Player;
+import io.github.G16.Model.PlayerTable;
+import io.github.G16.View.ScreenStates.GameScreen;
+import io.github.G16.View.ScreenStates.MainMenuScreen;
 
 public class PlayerController {
     private Player player;
     private String joinLobbyUrl;
     private static PlayerController instance;
+
+    private PlayerTable currentTable;
     private PlayerController(){}
 
     public static PlayerController getInstance(){
@@ -33,10 +39,21 @@ public class PlayerController {
                     Gdx.app.log("HTTP","Joined lobby successfully: "+code);
 
                     String responseText = httpResponse.getResultAsString();
-                    player=new Player(extractPlayerId(responseText),name);
+                    //player=new Player(extractPlayerId(responseText),name);
                     System.out.println(extractPlayerId(responseText));
                     codeField.setText("Joined lobby successfully");
-                    InputManager.getInstance(null,null).listenForUpdates("tables","table"+code);
+                    currentTable = new PlayerTable(code);
+                    InputManager.getInstance(null,null).listenForTableUpdates(currentTable);
+
+                    // This is temporary, player should set ready to enter
+                    Timer.schedule(new Timer.Task() {
+                        @Override
+                        public void run() {
+                            GameScreen gameScreen = new GameScreen(InputManager.getInstance(null,null));
+                            currentTable.addObserver(gameScreen);
+                            InputManager.getInstance(null,null).changeScreen(gameScreen);
+                        }
+                    }, 0.5f);
                 } else {
                     Gdx.app.log("HTTP", "Error joining lobby: "+statusCode);
 

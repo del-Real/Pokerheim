@@ -17,11 +17,14 @@ import io.github.G16.Main;
 import io.github.G16.Model.Card;
 import io.github.G16.Model.GameState;
 import io.github.G16.Model.Player;
+import io.github.G16.Model.PlayerTable;
 import io.github.G16.Model.Rank;
 import io.github.G16.Model.Suit;
+import io.github.G16.View.ObserverScreen;
 
-public class GameScreen extends ScreenState{
+public class GameScreen extends ScreenState implements ObserverScreen {
 
+    Label potLabel;
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
@@ -70,6 +73,7 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(foldButton);
 
+        /*
         //Temp
         Player player=new Player("0", "Alberto");
         player.getPlayerHand().addCard(new Card(Rank.ACE,Suit.CLUBS));
@@ -98,6 +102,7 @@ public class GameScreen extends ScreenState{
 
         stage.addActor(chipsWindow);
 
+        */
         //Temp
         GameState gameState= new GameState();
         //
@@ -117,7 +122,7 @@ public class GameScreen extends ScreenState{
         potWindow.setPosition((float)(Main.SCREEN_WIDTH*0.35),(float)(Main.SCREEN_HEIGHT*0.8));
         potWindow.setSize((float)(Main.SCREEN_WIDTH*0.30),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
-        Label potLabel = new Label("Pot: "+gameState.getPot(),skin);
+        potLabel = new Label("Pot: "+gameState.getPot(),skin);
         potLabel.setAlignment(Align.center);
 
         potWindow.add(potLabel).expand().fill().center();
@@ -186,5 +191,11 @@ public class GameScreen extends ScreenState{
                 raiseWindow.setVisible(true);
             }
         });
+    }
+
+    @Override
+    public void update(PlayerTable playerTable) {
+        System.out.println("Got an update");
+        potLabel.setText(playerTable.getPot());
     }
 }

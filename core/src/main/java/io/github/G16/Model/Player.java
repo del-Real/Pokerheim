@@ -1,25 +1,27 @@
 package io.github.G16.Model;
 
+import java.util.ArrayList;
+
 public class Player {
 
-    private String playerID;
-    private PlayerHand playerHand;
-    private String name;
-    private int chips;
-    public Player(String playerID, String name){
+    private final String playerID;
+    private final String name;
+    private final ArrayList<Card> cards;
+
+    private int stack;
+
+    private boolean folded=false;
+    private boolean allIn=false;
+    public Player(String playerID, String name, ArrayList<Card> cards, int stack){
         this.playerID=playerID;
-        this.playerHand=new PlayerHand();
+        this.name=name;
+        this.cards=cards;
+        this.stack=stack;
     }
 
-    public PlayerHand getPlayerHand() {
-        return this.playerHand;
-    }
-
-    public void setChips(int chips) {
-        this.chips = chips;
-    }
-
-    public int getChips() {
-        return this.chips;
+    public void updatePlayer(int stack, boolean folded, boolean allIn){
+        this.stack = stack;
+        this.folded = folded;
+        this.allIn = allIn;
     }
 }
