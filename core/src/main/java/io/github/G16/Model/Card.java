@@ -1,9 +1,10 @@
 package io.github.G16.Model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import io.github.G16.Assets;
 
 public class Card {
     private final Rank rank;
@@ -28,10 +29,8 @@ public class Card {
         int xPos = col * (CARD_WIDTH + CARD_GAP);
         int yPos = row * (CARD_HEIGHT + CARD_GAP);
 
-        Texture frontCardTexture = new Texture(Gdx.files.internal("poker_cards.png"));
-        // Extract the appropriate region from the texture
         this.textureRegion = new TextureRegion(
-                frontCardTexture,
+                Assets.cardAtlas,
                 xPos,
                 yPos,
                 CARD_WIDTH,

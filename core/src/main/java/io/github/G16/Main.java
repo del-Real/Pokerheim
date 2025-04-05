@@ -31,6 +31,7 @@ public class Main extends Game {
 
         SCREEN_WIDTH = Gdx.graphics.getWidth();
         SCREEN_HEIGHT = Gdx.graphics.getHeight();
+        Assets.load();
     }
 
     @Override
@@ -49,5 +50,6 @@ public class Main extends Game {
     @Override
     public void dispose() {
         viewManager.getScreen().dispose();
+        Assets.dispose();
     }
 }
