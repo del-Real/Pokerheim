@@ -13,8 +13,6 @@ public class Main extends Game {
 
     static public float SCREEN_WIDTH;
     static public float SCREEN_HEIGHT;
-
-    // Cambia il tipo di viewManager e inputManager per usare il Singleton
     private ViewManager viewManager;
     private InputManager inputManager;
     private final FirestoreTableListener firestoreListener;

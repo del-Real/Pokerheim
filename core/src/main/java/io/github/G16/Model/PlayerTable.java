@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import io.github.G16.View.ObserverScreen;
 
 public class PlayerTable implements Subject{
+
+    // This basically contains the information the player sees/needs
     private final String tableId;
     private final String playerId;
     private int pot;
+    private int stack;
     private String currentTurn;
     private ArrayList<Card> communityCards=new ArrayList<>();
     private ArrayList<Card> playerHand = new ArrayList<>();
@@ -17,11 +20,13 @@ public class PlayerTable implements Subject{
         this.playerId = playerId;
     }
 
-    public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, ArrayList<Card> playerHand){
+    // This can be done better so that everything is updated only when something is different but its low priority
+    public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, ArrayList<Card> playerHand, int stack){
         this.pot = pot;
         this.currentTurn=currentTurn;
         this.communityCards=communityCards;
         this.playerHand=playerHand;
+        this.stack=stack;
         System.out.println("Update");
         notifyObservers();
     }
@@ -35,6 +40,10 @@ public class PlayerTable implements Subject{
 
     public int getPot(){
         return pot;
+    }
+
+    public int getStack() {
+        return stack;
     }
 
     public ArrayList<Card> getCommunityCards() {

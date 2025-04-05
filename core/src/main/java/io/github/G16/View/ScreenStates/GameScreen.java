@@ -23,6 +23,7 @@ import io.github.G16.View.ObserverScreen;
 public class GameScreen extends ScreenState implements ObserverScreen {
 
     Label potLabel;
+    Label stackLabel;
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
@@ -71,52 +72,17 @@ public class GameScreen extends ScreenState implements ObserverScreen {
 
         stage.addActor(foldButton);
 
-        /*
-        //Temp
-        Player player=new Player("0", "Alberto");
-        player.getPlayerHand().addCard(new Card(Rank.ACE,Suit.CLUBS));
-        player.getPlayerHand().addCard(new Card(Rank.TEN,Suit.HEARTS));
-        //
 
-        for (int i=0;i<player.getPlayerHand().getCards().size();i++){
-            Card card = player.getPlayerHand().getCards().get(i);
-            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
-            Image cardImage = new Image(cardDrawable);
-            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
-
-            cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
-            stage.addActor(cardImage);
-        }
-
-
-        Window chipsWindow = new Window("", skin);
-        chipsWindow.setPosition((float)(Main.SCREEN_WIDTH*0.10),(float)(Main.SCREEN_HEIGHT*0.275));
-        chipsWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
+        Window stackWindow = new Window("", skin);
+        stackWindow.setPosition((float)(Main.SCREEN_WIDTH*0.10),(float)(Main.SCREEN_HEIGHT*0.275));
+        stackWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
-        Label chipsLabel = new Label("Chips: "+player.getChips(),skin);
-        chipsLabel.setAlignment(Align.center);
+        stackLabel = new Label("Chips: 0",skin);
+        stackLabel.setAlignment(Align.center);
 
-        chipsWindow.add(chipsLabel).expand().fill().center();
+        stackWindow.add(stackLabel).expand().fill().center();
 
-        stage.addActor(chipsWindow);
-
-        */
-        //Temp
-        //GameState gameState= new GameState();
-        //
-        /*
-        for (int i=0;i<gameState.getCommunityCards().size();i++){
-            Card card = gameState.getCommunityCards().get(i);
-            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
-            Image cardImage = new Image(cardDrawable);
-            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
-
-            cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
-            stage.addActor(cardImage);
-
-        }
-
-        */
+        stage.addActor(stackWindow);
 
         Window potWindow = new Window("", skin);
         potWindow.setPosition((float)(Main.SCREEN_WIDTH*0.35),(float)(Main.SCREEN_HEIGHT*0.8));
@@ -197,6 +163,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");
         potLabel.setText("Pot: "+playerTable.getPot());
+        stackLabel.setText("Stack: "+playerTable.getStack());
         ArrayList<Card> communityCards = playerTable.getCommunityCards();
         int i=0;
         for (Card card: communityCards){
@@ -220,35 +187,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
             stage.addActor(cardImage);
             i++;
         }
-        /*
 
-                //Temp
-        Player player=new Player("0", "Alberto");
-        player.getPlayerHand().addCard(new Card(Rank.ACE,Suit.CLUBS));
-        player.getPlayerHand().addCard(new Card(Rank.TEN,Suit.HEARTS));
-        //
-
-        for (int i=0;i<player.getPlayerHand().getCards().size();i++){
-            Card card = player.getPlayerHand().getCards().get(i);
-            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
-            Image cardImage = new Image(cardDrawable);
-            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
-
-            cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
-            stage.addActor(cardImage);
-        }
-        for (int i=0;i<gameState.getCommunityCards().size();i++){
-            Card card = gameState.getCommunityCards().get(i);
-            TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
-            Image cardImage = new Image(cardDrawable);
-            cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
-
-            cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
-            stage.addActor(cardImage);
-
-        }
-
-        */
 
     }
 }
