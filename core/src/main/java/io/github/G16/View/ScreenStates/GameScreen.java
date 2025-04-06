@@ -44,30 +44,8 @@ public class GameScreen extends ScreenState implements ObserverScreen {
 
         skin.getFont("font").getData().setScale(3f);
 
-        TextButton checkButton = new TextButton("CHECK", skin);
-        checkButton.setPosition((float) (Main.SCREEN_WIDTH*0.05),(float)(Main.SCREEN_HEIGHT*0.05));
-        checkButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
-        checkButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                System.out.println("Check");
-            }
-        });
-
-        stage.addActor(checkButton);
-
-        TextButton callButton = new TextButton("CALL", skin);
-        callButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.05));
-        callButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
-        callButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                System.out.println("Call");
-            }
-        });
-
-        stage.addActor(callButton);
-
+        checkLogic();
+        callLogic();
         raiseLogic();
         foldLogic();
 
@@ -95,6 +73,117 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         stage.addActor(potWindow);
 
     }
+
+    private void checkLogic() {
+        TextButton checkButton = new TextButton("CHECK", skin);
+        checkButton.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.05));
+        checkButton.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.075));
+
+        stage.addActor(checkButton);
+
+        final Window checkWindow = new Window("", skin);
+        checkWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        checkWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
+        checkWindow.setVisible(false);
+
+        Label checkLabel = new Label("Check?", skin);
+        checkLabel.setAlignment(Align.center);
+        checkWindow.add(checkLabel).expandX().fillX().pad(10);
+
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
+        TextButton confirmCheckButton = new TextButton("CONFIRM", skin);
+        confirmCheckButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                PlayerController.getInstance().performAction(
+                        PlayerController.getInstance().getCurrentTable().getPlayerId(),
+                        "check",
+                        0,
+                        checkWindow,
+                        checkLabel
+                );
+            }
+        });
+
+        TextButton backButton = new TextButton("BACK", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                checkWindow.setVisible(false);
+            }
+        });
+
+        buttonTable.add(confirmCheckButton).expandX().fillX();
+        buttonTable.add(backButton).expand().fillX();
+
+        checkWindow.row();
+        checkWindow.add(buttonTable).expandX().fillX();
+
+        stage.addActor(checkWindow);
+
+        checkButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                checkWindow.setVisible(true);
+            }
+        });
+    }
+
+
+    private void callLogic() {
+        TextButton callButton = new TextButton("CALL", skin);
+        callButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.05));
+        callButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
+        stage.addActor(callButton);
+
+        final Window callWindow = new Window("", skin);
+        callWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        callWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
+        callWindow.setVisible(false);
+
+        Label callLabel = new Label("Call?", skin);
+        callLabel.setAlignment(Align.center);
+        callWindow.add(callLabel).expandX().fillX().pad(10);
+
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
+        TextButton confirmCallButton = new TextButton("CONFIRM", skin);
+        confirmCallButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(), "call", 0, callWindow, callLabel);
+            }
+        });
+
+        TextButton backButton = new TextButton("BACK", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                callWindow.setVisible(false);
+            }
+        });
+
+        buttonTable.add(confirmCallButton).expandX().fillX();
+        buttonTable.add(backButton).expand().fillX();
+
+        callWindow.row();
+        callWindow.add(buttonTable).expandX().fillX();
+
+        stage.addActor(callWindow);
+
+        callButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                callWindow.setVisible(true);
+            }
+        });
+    }
+
 
     private void raiseLogic(){
 
@@ -166,7 +255,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
 
     }
 
-    void foldLogic(){
+    private void foldLogic(){
         TextButton foldButton = new TextButton("FOLD", skin);
         foldButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.15));
         foldButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
