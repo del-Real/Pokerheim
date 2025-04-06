@@ -26,8 +26,8 @@ public class GameScreen extends ScreenState implements ObserverScreen {
 
     private Label potLabel;
     private Label stackLabel;
-
     private Label turnLabel;
+    private Window currentOpenWindow=null;
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
@@ -35,7 +35,6 @@ public class GameScreen extends ScreenState implements ObserverScreen {
     @Override
     public void show(){
         super.show();
-        //TODO something that makes sure that when a window is open you cant open others
         turnLabel = new Label("Not Your Turn", skin);
         turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.35), (float) (Main.SCREEN_HEIGHT * 0.9));  // Posiziona in cima
         turnLabel.setAlignment(Align.center);
@@ -113,6 +112,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 checkWindow.setVisible(false);
+                currentOpenWindow=null;
             }
         });
 
@@ -127,7 +127,11 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         checkButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
                 checkWindow.setVisible(true);
+                currentOpenWindow=checkWindow;
             }
         });
     }
@@ -165,6 +169,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 callWindow.setVisible(false);
+                currentOpenWindow=null;
             }
         });
 
@@ -179,7 +184,11 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         callButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
                 callWindow.setVisible(true);
+                currentOpenWindow=callWindow;
             }
         });
     }
@@ -235,6 +244,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 raiseWindow.setVisible(false);
+                currentOpenWindow=null;
             }
         });
 
@@ -249,7 +259,11 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         raiseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
                 raiseWindow.setVisible(true);
+                currentOpenWindow=raiseWindow;
             }
         });
 
@@ -288,6 +302,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
             @Override
             public void clicked(InputEvent event, float x, float y){
                 foldWindow.setVisible(false);
+                currentOpenWindow=null;
             }
         });
 
@@ -302,7 +317,11 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         foldButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y){
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
                 foldWindow.setVisible(true);
+                currentOpenWindow=foldWindow;
             }
         });
 
