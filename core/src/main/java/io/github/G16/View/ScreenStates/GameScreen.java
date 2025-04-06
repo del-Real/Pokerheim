@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Align;
 import java.util.ArrayList;
 
 import io.github.G16.Controller.InputManager;
+import io.github.G16.Controller.PlayerController;
 import io.github.G16.Main;
 import io.github.G16.Model.Card;
 import io.github.G16.Model.PlayerTable;
