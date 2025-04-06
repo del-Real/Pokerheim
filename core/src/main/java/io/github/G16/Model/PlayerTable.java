@@ -38,6 +38,10 @@ public class PlayerTable implements Subject{
         return playerId;
     }
 
+    public String getCurrentTurn(){
+        return currentTurn;
+    }
+
     public int getPot(){
         return pot;
     }

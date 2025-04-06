@@ -23,8 +23,10 @@ import io.github.G16.View.ObserverScreen;
 
 public class GameScreen extends ScreenState implements ObserverScreen {
 
-    Label potLabel;
-    Label stackLabel;
+    private Label potLabel;
+    private Label stackLabel;
+
+    private Label turnLabel;
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
@@ -32,6 +34,12 @@ public class GameScreen extends ScreenState implements ObserverScreen {
     @Override
     public void show(){
         super.show();
+
+        turnLabel = new Label("Not Your Turn", skin);
+        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.35), (float) (Main.SCREEN_HEIGHT * 0.9));  // Posiziona in cima
+        turnLabel.setAlignment(Align.center);
+
+        stage.addActor(turnLabel);
 
         skin.getFont("font").getData().setScale(3f);
 
@@ -135,11 +143,10 @@ public class GameScreen extends ScreenState implements ObserverScreen {
                 String amountText = raiseAmountField.getText();
                 try {
                     int raiseAmount = Integer.parseInt(amountText);
-                    if (raiseAmount <= 0){ // Add other checks (raise < chips) ...
+                    if (raiseAmount <= 0){
                         throw new NumberFormatException();
                     }
-                    System.out.println("Raise of: " + raiseAmount);
-                    raiseWindow.setVisible(false);
+                    PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(),"raise",raiseAmount, raiseWindow, raiseLabel);
                 } catch (NumberFormatException e) {
                     raiseLabel.setText("Invalid input");
                     System.out.println("Invalid input");
@@ -165,6 +172,11 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         System.out.println("Got an update");
         potLabel.setText("Pot: "+playerTable.getPot());
         stackLabel.setText("Stack: "+playerTable.getStack());
+        if (playerTable.getCurrentTurn() != null && playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
+            turnLabel.setText("Your turn");
+        } else {
+            turnLabel.setText("Not your turn");
+        }
         ArrayList<Card> communityCards = playerTable.getCommunityCards();
         int i=0;
         for (Card card: communityCards){
