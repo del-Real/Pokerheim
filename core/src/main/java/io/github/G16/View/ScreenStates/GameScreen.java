@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -34,7 +35,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
     @Override
     public void show(){
         super.show();
-
+        //TODO something that makes sure that when a window is open you cant open others
         turnLabel = new Label("Not Your Turn", skin);
         turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.35), (float) (Main.SCREEN_HEIGHT * 0.9));  // Posiziona in cima
         turnLabel.setAlignment(Align.center);
@@ -68,18 +69,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         stage.addActor(callButton);
 
         raiseLogic();
-
-        TextButton foldButton = new TextButton("FOLD", skin);
-        foldButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.15));
-        foldButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
-        foldButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                System.out.println("Fold");
-            }
-        });
-
-        stage.addActor(foldButton);
+        foldLogic();
 
 
         Window stackWindow = new Window("", skin);
@@ -107,23 +97,16 @@ public class GameScreen extends ScreenState implements ObserverScreen {
     }
 
     private void raiseLogic(){
-        // Unfinished
 
         TextButton raiseButton = new TextButton("RAISE", skin);
         raiseButton.setPosition((float) (Main.SCREEN_WIDTH*0.05),(float)(Main.SCREEN_HEIGHT*0.15));
         raiseButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
-        raiseButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                System.out.println("Raise");
-            }
-        });
 
         stage.addActor(raiseButton);
 
         final Window raiseWindow = new Window("", skin);
-        raiseWindow.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.2));
-        raiseWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.3), (float) (Main.SCREEN_HEIGHT * 0.5));
+        raiseWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        raiseWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
         raiseWindow.setVisible(false);
 
         Label raiseLabel = new Label("Raise Amount", skin);
@@ -136,6 +119,10 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         raiseWindow.row();
         raiseWindow.add(raiseAmountField).expandX().fillX().pad(10);
 
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
         TextButton confirmRaiseButton = new TextButton("CONFIRM", skin);
         confirmRaiseButton.addListener(new ClickListener() {
             @Override
@@ -146,7 +133,7 @@ public class GameScreen extends ScreenState implements ObserverScreen {
                     if (raiseAmount <= 0){
                         throw new NumberFormatException();
                     }
-                    PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(),"raise",raiseAmount, raiseWindow, raiseLabel);
+                    PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(), "raise", raiseAmount, raiseWindow, raiseLabel);
                 } catch (NumberFormatException e) {
                     raiseLabel.setText("Invalid input");
                     System.out.println("Invalid input");
@@ -154,8 +141,19 @@ public class GameScreen extends ScreenState implements ObserverScreen {
             }
         });
 
+        TextButton backButton = new TextButton("BACK", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                raiseWindow.setVisible(false);
+            }
+        });
+
+        buttonTable.add(confirmRaiseButton).expandX().fillX();
+        buttonTable.add(backButton).expandX().fillX();
+
         raiseWindow.row();
-        raiseWindow.add(confirmRaiseButton).pad(10);
+        raiseWindow.add(buttonTable).expandX().fillX();
 
         stage.addActor(raiseWindow);
 
@@ -165,6 +163,60 @@ public class GameScreen extends ScreenState implements ObserverScreen {
                 raiseWindow.setVisible(true);
             }
         });
+
+    }
+
+    void foldLogic(){
+        TextButton foldButton = new TextButton("FOLD", skin);
+        foldButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.15));
+        foldButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
+
+        stage.addActor(foldButton);
+
+        final Window foldWindow = new Window("", skin);
+        foldWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        foldWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
+        foldWindow.setVisible(false);
+
+        Label foldLabel = new Label("Fold?", skin);
+        foldLabel.setAlignment(Align.center);
+        foldWindow.add(foldLabel).expandX().fillX().pad(10);
+
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
+        TextButton confirmFoldButton = new TextButton("CONFIRM", skin);
+        confirmFoldButton.addListener(new ClickListener() {
+           @Override
+           public void clicked(InputEvent event, float x, float y){
+               PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(),"fold",0,foldWindow,foldLabel);
+           }
+        });
+
+        TextButton backButton = new TextButton("BACK",skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                foldWindow.setVisible(false);
+            }
+        });
+
+        buttonTable.add(confirmFoldButton).expandX().fillX();
+        buttonTable.add(backButton).expand().fillX();
+
+        foldWindow.row();
+        foldWindow.add(buttonTable).expandX().fillX();
+
+        stage.addActor(foldWindow);
+
+        foldButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                foldWindow.setVisible(true);
+            }
+        });
+
     }
 
     @Override
