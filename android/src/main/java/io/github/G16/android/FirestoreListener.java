@@ -27,41 +27,45 @@ public class FirestoreListener implements FirestoreTableListener {
         firestore = FirebaseFirestore.getInstance();
     }
 
-    public void listenForTableUpdates(PlayerTable playerTable){
+    public void listenForTableUpdates(PlayerTable playerTable) {
         registration = firestore.collection("tables")
-                .document("table"+playerTable.getTableId())
+                .document("table" + playerTable.getTableId())
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null){
-                            System.out.println("Listen filed: " + error);
+                        if (error != null) {
+                            System.out.println("Listen failed: " + error);
                             return;
                         }
-                        if (value != null && value.exists()){
+                        if (value != null && value.exists()) {
                             System.out.println("Document updated: " + value.getId());
-                            System.out.println("Content: "+value.getData());
+                            System.out.println("Content: " + value.getData());
 
                             Long pot = value.getLong("pot");
                             String currentTurn = value.getString("currentTurn");
+
                             ArrayList<Card> communityCards = new ArrayList<>();
                             List<Map<String, Object>> rawCards = (List<Map<String, Object>>) value.get("community_cards");
                             if (rawCards != null) {
                                 for (Map<String, Object> cardData : rawCards) {
                                     String suitStr = (String) cardData.get("suit");
                                     String rankStr = (String) cardData.get("rank");
-
-                                    // Convert suit and rank to enum
                                     Suit suit = Suit.fromString(suitStr);
                                     Rank rank = Rank.fromString(rankStr);
-
-                                    // Add the card to communityCards list
                                     communityCards.add(new Card(rank, suit));
                                 }
                             }
 
-
-                            // Get only the player's hand based on playerId
                             Map<String, Object> playersData = (Map<String, Object>) value.get("players");
+
+                            // Get current player's name
+                            String currentPlayerName = null;
+                            if (playersData != null && currentTurn != null && playersData.containsKey(currentTurn)) {
+                                Map<String, Object> currentPlayerData = (Map<String, Object>) playersData.get(currentTurn);
+                                currentPlayerName = (String) currentPlayerData.get("name");
+                            }
+
+                            // Get only the local player's data
                             if (playersData != null && playersData.containsKey(playerTable.getPlayerId())) {
                                 Map<String, Object> playerData = (Map<String, Object>) playersData.get(playerTable.getPlayerId());
 
@@ -76,7 +80,6 @@ public class FirestoreListener implements FirestoreTableListener {
                                 ArrayList<Card> playerCards = new ArrayList<>();
                                 if (rawCardsList != null) {
                                     for (Map<String, String> cardData : rawCardsList) {
-
                                         String suitStr = cardData.get("suit");
                                         String rankStr = cardData.get("rank");
 
@@ -84,7 +87,7 @@ public class FirestoreListener implements FirestoreTableListener {
                                             try {
                                                 Suit suit = Suit.fromString(suitStr);
                                                 Rank rank = Rank.fromString(rankStr);
-                                                playerCards.add(new Card(rank,suit));
+                                                playerCards.add(new Card(rank, suit));
                                             } catch (IllegalArgumentException e) {
                                                 System.out.println("Error while converting card: " + e.getMessage());
                                             }
@@ -92,13 +95,11 @@ public class FirestoreListener implements FirestoreTableListener {
                                             System.out.println("Error: Missing rank or suit for card");
                                         }
                                     }
-
                                 }
 
-
-                                // Update playerTable
+                                // Update playerTable with current player name
                                 if (pot != null && currentTurn != null && stack != null) {
-                                    playerTable.updateTable(pot.intValue(), currentTurn, communityCards, playerCards, stack.intValue());
+                                    playerTable.updateTable(pot.intValue(), currentTurn, communityCards, playerCards, stack.intValue(), currentPlayerName);
                                     System.out.println("PlayerTable updated!");
                                 } else {
                                     System.out.println("Missing data to update PlayerTable.");
@@ -108,6 +109,7 @@ public class FirestoreListener implements FirestoreTableListener {
                     }
                 });
     }
+
     public void stopListening() {
         if (registration != null) {
             registration.remove();

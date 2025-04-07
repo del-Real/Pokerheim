@@ -15,18 +15,20 @@ public class PlayerTable implements Subject{
     private ArrayList<Card> communityCards=new ArrayList<>();
     private ArrayList<Card> playerHand = new ArrayList<>();
     private ArrayList<ObserverScreen> observers=new ArrayList<>();
+    private String currentPlayer;
     public PlayerTable(String tableId, String playerId){
         this.tableId = tableId;
         this.playerId = playerId;
     }
 
     // This can be done better so that everything is updated only when something is different but its low priority
-    public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, ArrayList<Card> playerHand, int stack){
+    public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, ArrayList<Card> playerHand, int stack, String currentPlayer){
         this.pot = pot;
         this.currentTurn=currentTurn;
         this.communityCards=communityCards;
         this.playerHand=playerHand;
         this.stack=stack;
+        this.currentPlayer=currentPlayer;
         System.out.println("Update");
         notifyObservers();
     }
@@ -48,6 +50,9 @@ public class PlayerTable implements Subject{
 
     public int getStack() {
         return stack;
+    }
+    public String getCurrentPlayer(){
+        return currentPlayer;
     }
 
     public ArrayList<Card> getCommunityCards() {

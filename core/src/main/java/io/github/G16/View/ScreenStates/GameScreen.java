@@ -332,10 +332,12 @@ public class GameScreen extends ScreenState implements ObserverScreen {
         System.out.println("Got an update");
         potLabel.setText("Pot: "+playerTable.getPot());
         stackLabel.setText("Stack: "+playerTable.getStack());
-        if (playerTable.getCurrentTurn() != null && playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
+        if (playerTable.getCurrentTurn() == null){
+            turnLabel.setText("Not your turn");
+        } else if (playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
             turnLabel.setText("Your turn");
         } else {
-            turnLabel.setText("Not your turn");
+            turnLabel.setText(playerTable.getCurrentPlayer()+"'s turn");
         }
         ArrayList<Card> communityCards = playerTable.getCommunityCards();
         int i=0;
