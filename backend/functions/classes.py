@@ -66,6 +66,8 @@ class Player:
         self.stack = 1000  # Default starting stack
         self.folded = False
         self.all_in = False
+        # STATUS: "playing", "spectating", "ready"
+        self.status = "spectating"
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -74,6 +76,7 @@ class Player:
         player.stack = data["stack"]
         player.folded = data.get("folded", False)
         player.all_in = data.get("all_in", False)
+        player.status = data.get("status", "spectating")
         return player
 
     def to_dict(self):
@@ -84,6 +87,7 @@ class Player:
             "stack": self.stack,
             "folded": self.folded,
             "all_in": self.all_in,
+            "status": self.status,
         }
 
     def __str__(self):
@@ -145,9 +149,10 @@ class Table:
         else:
             raise ValueError(f"Player {player.playerId} already exists in the table.")
         
-        if len(self.players) == 2 and self.status == "waiting":
-            self.status = "playing"
-            self.start_game()
+        # TODO: ready check
+        #if len(self.players) == 2 and self.status == "waiting":
+        #    self.status = "playing"
+        #    self.start_game()
 
     def remove_player(self, playerId: str):
         if playerId in self.players:
@@ -160,6 +165,17 @@ class Table:
                 self.status = "waiting"
                 self.currentTurn = None
                 self.reset_game()
+
+    def change_player_status(self, playerId: str, status: str):
+        if playerId in self.players:
+            self.players[playerId].status = status
+
+    def start_game_possible(self):
+        # check if atleast 2 players are 'ready' and no game is in progress
+        ready_players = [p for p in self.players.values() if p.status == "ready"]
+        if len(ready_players) >= 2 and self.status == "waiting":
+            return True
+        return False
 
     def deal_cards(self, num_cards: int):
         for playerId in self.player_order:
@@ -192,6 +208,11 @@ class Table:
 
     def start_game(self):
         self.reset_game()
+
+        # update player status to playing
+        for playerId in self.player_order:
+            if self.players[playerId].status == "ready":
+                self.players[playerId].status = "playing"
         
         # Move dealer button
         if self.player_order:
@@ -373,7 +394,6 @@ class Table:
 
         # TODO : Handle ties and side pots if necessary
         # TODO : ready check before resetting the game - done from cloud function ??
-
     def to_dict(self):
         return {
             "tableId": self.tableId,
@@ -484,3 +504,4 @@ class Table:
             self.next_player()
             
         return True
+    
