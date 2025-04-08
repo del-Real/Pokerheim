@@ -2,7 +2,7 @@ package io.github.G16.Model;
 
 import java.util.ArrayList;
 
-import io.github.G16.View.ObserverScreen;
+import io.github.G16.View.Observer;
 
 public class PlayerTable implements Subject{
 
@@ -14,7 +14,7 @@ public class PlayerTable implements Subject{
     private String currentTurn;
     private ArrayList<Card> communityCards=new ArrayList<>();
     private ArrayList<Card> playerHand = new ArrayList<>();
-    private ArrayList<ObserverScreen> observers=new ArrayList<>();
+    private ArrayList<Observer> observers=new ArrayList<>();
     private String currentPlayer;
     public PlayerTable(String tableId, String playerId){
         this.tableId = tableId;
@@ -63,7 +63,7 @@ public class PlayerTable implements Subject{
         return playerHand;
     }
 
-    public void addObserver(ObserverScreen observer){
+    public void addObserver(Observer observer){
         this.observers.add(observer);
         observer.update(this);
     }
@@ -71,7 +71,7 @@ public class PlayerTable implements Subject{
     @Override
     public void notifyObservers() {
         System.out.println("Notifying");
-        for (ObserverScreen o: observers){
+        for (Observer o: observers){
             o.update(this);
         }
     }

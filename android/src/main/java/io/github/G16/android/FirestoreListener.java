@@ -18,15 +18,12 @@ import io.github.G16.Model.PlayerTable;
 import io.github.G16.Model.Rank;
 import io.github.G16.Model.Suit;
 
-public class FirestoreListener implements FirestoreTableListener {
-
+public class FirestoreListener implements FirestoreTableListener{
     private final FirebaseFirestore firestore;
     private ListenerRegistration registration;
-
     public FirestoreListener() {
         firestore = FirebaseFirestore.getInstance();
     }
-
     public void listenForTableUpdates(PlayerTable playerTable) {
         registration = firestore.collection("tables")
                 .document("table" + playerTable.getTableId())

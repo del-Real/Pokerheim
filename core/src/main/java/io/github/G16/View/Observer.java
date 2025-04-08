@@ -2,6 +2,6 @@ package io.github.G16.View;
 
 import io.github.G16.Model.PlayerTable;
 
-public interface ObserverScreen {
+public interface Observer {
     void update(PlayerTable playerTable);
 }

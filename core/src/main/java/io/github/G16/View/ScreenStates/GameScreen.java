@@ -20,9 +20,9 @@ import io.github.G16.Controller.PlayerController;
 import io.github.G16.Main;
 import io.github.G16.Model.Card;
 import io.github.G16.Model.PlayerTable;
-import io.github.G16.View.ObserverScreen;
+import io.github.G16.View.Observer;
 
-public class GameScreen extends ScreenState implements ObserverScreen {
+public class GameScreen extends ScreenState implements Observer {
 
     private Label potLabel;
     private Label stackLabel;

@@ -12,7 +12,6 @@ import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.GameScreen;
 
 public class PlayerController {
-    private String joinLobbyUrl;
     private static PlayerController instance;
     private PlayerTable currentTable;
     private PlayerController(){}
@@ -31,9 +30,9 @@ public class PlayerController {
 
 
     public void joinLobby(String code, String name, TextField codeField){
-        joinLobbyUrl = "https://us-central1-pokergame-007.cloudfunctions.net/joinTable?tableId=table"+code+"&name="+name;
+        String url = "https://us-central1-pokergame-007.cloudfunctions.net/joinTable?tableId=table"+code+"&name="+name;
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
-        request.setUrl(joinLobbyUrl);
+        request.setUrl(url);
         request.setTimeOut(5000);
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
@@ -44,7 +43,9 @@ public class PlayerController {
 
                     String responseText = httpResponse.getResultAsString();
                     System.out.println(extractPlayerId(responseText));
-                    codeField.setText("Joined lobby successfully");
+                    if (codeField != null){
+                        codeField.setText("Joined lobby successfully");
+                    }
                     currentTable = new PlayerTable(code, extractPlayerId(responseText));
                     InputManager.getInstance(null,null).listenForTableUpdates(currentTable);
 
@@ -87,7 +88,7 @@ public class PlayerController {
         return null;
     }
 
-    public void createLobby(Label codeLabel){
+    public void createLobby(Label codeLabel, String name){
 
         String tableId = "" + System.currentTimeMillis();
         String url = "https://us-central1-pokergame-007.cloudfunctions.net/createTable?tableId=table" + tableId;
@@ -103,6 +104,7 @@ public class PlayerController {
                 if (statusCode == HttpStatus.SC_OK) {
                     Gdx.app.log("HTTP", "Lobby Created Successfully: " + tableId);
                     codeLabel.setText(tableId);
+                    joinLobby(tableId,name,null);
                 } else {
                     Gdx.app.log("HTTP", "Error creating lobby: " + statusCode);
                     codeLabel.setText("Failed to create lobby");

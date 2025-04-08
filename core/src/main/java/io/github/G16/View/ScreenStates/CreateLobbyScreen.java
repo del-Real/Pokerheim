@@ -1,8 +1,5 @@
 package io.github.G16.View.ScreenStates;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net;
-import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -27,17 +24,6 @@ public class CreateLobbyScreen extends ScreenState{
         super.show();
 
         skin.getFont("font").getData().setScale(4f);
-
-        TextButton gameSettingsButton = new TextButton("GAME SETTINGS", skin);
-        gameSettingsButton.setPosition((float) (Main.SCREEN_WIDTH*0.25), (float) (Main.SCREEN_HEIGHT * 0.6));
-        gameSettingsButton.setSize((float) (Main.SCREEN_WIDTH*0.5), (float) (Main.SCREEN_HEIGHT*0.1));
-        gameSettingsButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                inputManager.changeScreen(new GameSettingsScreen(inputManager));
-            }
-        });
-
 
 
         TextButton backButton = new TextButton("<", skin);
@@ -92,11 +78,7 @@ public class CreateLobbyScreen extends ScreenState{
                 clicked function makes the player ready
                  */
 
-                PlayerController.getInstance().createLobby(codeLabel);
-
-                // When the code is generated
-
-                stage.addActor(gameSettingsButton);
+                PlayerController.getInstance().createLobby(codeLabel, nameField.getText());
 
                 // Make it so that when it presses ready it joins the lobby
             }

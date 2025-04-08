@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import io.github.G16.Controller.FirestoreTableListener;
 import io.github.G16.Controller.InputManager;
 import io.github.G16.View.ScreenStates.LaunchLoadingScreen;
+import io.github.G16.View.ScreenStates.MainMenuScreen;
 import io.github.G16.View.ViewManager;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -30,6 +31,9 @@ public class Main extends Game {
         SCREEN_WIDTH = Gdx.graphics.getWidth();
         SCREEN_HEIGHT = Gdx.graphics.getHeight();
         Assets.load();
+
+        // When the assets are loaded we put the main menu screen
+        this.viewManager.setScreen(new MainMenuScreen(inputManager));
     }
 
     @Override
