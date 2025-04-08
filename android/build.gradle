@@ -6,6 +6,7 @@ buildscript {
   }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 
 android {
@@ -32,7 +33,7 @@ android {
   }
   defaultConfig {
     applicationId 'io.github.G16'
-    minSdkVersion 19
+    minSdkVersion 21
     targetSdkVersion 34
     versionCode 1
     versionName "1.0"
@@ -59,6 +60,7 @@ repositories {
 configurations { natives }
 
 dependencies {
+  implementation 'com.google.firebase:firebase-firestore:25.1.3'
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
   implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
   implementation project(':core')

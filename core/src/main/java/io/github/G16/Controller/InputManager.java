@@ -3,31 +3,43 @@ package io.github.G16.Controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 
+import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.ScreenState;
 import io.github.G16.View.ViewManager;
 
 
 public class InputManager implements InputProcessor {
-    private ViewManager viewManager;
+    private final ViewManager viewManager;
+    private final FirestoreTableListener firestoreListener;
     private InputProcessor currentInputProcessor;
+    private static InputManager instance;
 
-    public InputManager(ViewManager viewManager) {
+    private InputManager(ViewManager viewManager, FirestoreTableListener firestoreListener) {
         this.viewManager = viewManager;
-
-        //I tried to make so that when you go back with your phone it goes to the previous screen but I failed
-        //Gdx.input.setCatchKey(Input.Keys.BACK, true);
+        this.firestoreListener = firestoreListener;
     }
+    public static InputManager getInstance(ViewManager viewManager, FirestoreTableListener firestoreListener) {
+        if (instance == null) {
+            synchronized (InputManager.class) {
+                if (instance == null) {
+                    instance = new InputManager(viewManager, firestoreListener);
 
+                }
+            }
+        }
+        return instance;
+    }
     public void setInputProcessor(InputProcessor inputProcessor) {
         this.currentInputProcessor = inputProcessor;
         Gdx.input.setInputProcessor(inputProcessor);
     }
-
-
     public void changeScreen(ScreenState screen) {
         viewManager.setScreen(screen);
     }
 
+    public void listenForTableUpdates(PlayerTable playerTable){
+        firestoreListener.listenForTableUpdates(playerTable);
+    }
 
     // Idk what these do
 

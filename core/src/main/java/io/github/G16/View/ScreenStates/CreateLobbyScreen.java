@@ -1,5 +1,8 @@
 package io.github.G16.View.ScreenStates;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Net;
+import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -9,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
 import io.github.G16.Controller.InputManager;
+import io.github.G16.Controller.PlayerController;
 import io.github.G16.Main;
 
 public class CreateLobbyScreen extends ScreenState{
@@ -88,15 +92,17 @@ public class CreateLobbyScreen extends ScreenState{
                 clicked function makes the player ready
                  */
 
+                PlayerController.getInstance().createLobby(codeLabel);
 
                 // When the code is generated
 
                 stage.addActor(gameSettingsButton);
+
+                // Make it so that when it presses ready it joins the lobby
             }
         });
 
         stage.addActor(codeField);
         stage.addActor(generateButton);
     }
-
 }

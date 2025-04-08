@@ -33,3 +33,13 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
+
+## What to do if when trying to run the app it says file google-services.json is missing:
+- Go to firebase console
+- Login
+- Select the project (should be pokeGame-007)
+- Go to project settings
+- Scroll down and download google-services.json
+- Put it in the folder android (together with AndroidManifest.xml)
+- Now it should run
+- Remember to not push the file since it contains the API key
