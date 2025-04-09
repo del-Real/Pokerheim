@@ -72,15 +72,10 @@ public class CreateLobbyScreen extends ScreenState{
         generateButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                codeLabel.setText("Code");
-                /*
-                Make so that when a code is generated the button text become ready and the
-                clicked function makes the player ready
-                 */
+                generateButton.setDisabled(true);
+                codeLabel.setText("Generating code");
+                PlayerController.getInstance().createLobby(codeLabel, nameField.getText(), generateButton);
 
-                PlayerController.getInstance().createLobby(codeLabel, nameField.getText());
-
-                // Make it so that when it presses ready it joins the lobby
             }
         });
 

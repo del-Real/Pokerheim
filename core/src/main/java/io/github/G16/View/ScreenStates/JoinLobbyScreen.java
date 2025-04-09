@@ -1,8 +1,5 @@
 package io.github.G16.View.ScreenStates;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net;
-import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -88,15 +85,15 @@ public class JoinLobbyScreen extends ScreenState {
         confirmButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                String enteredCode = codeField.getText();
-                infoLabel.setText("Entered code: " + enteredCode);
+                confirmButton.setDisabled(true);
+                infoLabel.setText("Trying to join lobby");
 
 
                 /*
                 Make so that when a valid code is entered, the button clicked function
                 Makes the player ready and the text becomes ready
                  */
-                PlayerController.getInstance().joinLobby(codeField.getText(),nameField.getText(),codeField);
+                PlayerController.getInstance().joinLobby(codeField.getText(),nameField.getText(),codeField, confirmButton);
             }
         });
 

@@ -333,7 +333,7 @@ public class GameScreen extends ScreenState implements Observer {
         potLabel.setText("Pot: "+playerTable.getPot());
         stackLabel.setText("Stack: "+playerTable.getStack());
         if (playerTable.getCurrentTurn() == null){
-            turnLabel.setText("Not your turn");
+            turnLabel.setText("Game is starting, please wait");
         } else if (playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
             turnLabel.setText("Your turn");
         } else {
