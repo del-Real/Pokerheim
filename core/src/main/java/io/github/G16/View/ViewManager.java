@@ -13,11 +13,7 @@ public class ViewManager {
     }
     public static ViewManager getInstance(Game game) {
         if (instance == null) {
-            synchronized (ViewManager.class) {
-                if (instance == null) {
-                    instance = new ViewManager(game);
-                }
-            }
+            instance = new ViewManager(game);
         }
         return instance;
     }

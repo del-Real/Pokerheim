@@ -28,6 +28,7 @@ public class GameScreen extends ScreenState implements Observer {
     private Label stackLabel;
     private Label turnLabel;
     private Window currentOpenWindow=null;
+    private Label errorLabel;
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
@@ -36,12 +37,22 @@ public class GameScreen extends ScreenState implements Observer {
     public void show(){
         super.show();
         turnLabel = new Label("Not Your Turn", skin);
-        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.35), (float) (Main.SCREEN_HEIGHT * 0.9));  // Posiziona in cima
+        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.35), (float) (Main.SCREEN_HEIGHT * 0.9));
         turnLabel.setAlignment(Align.center);
 
         stage.addActor(turnLabel);
 
         skin.getFont("font").getData().setScale(3f);
+
+        errorLabel = new Label("",skin);
+        errorLabel.setPosition((float) (Main.SCREEN_WIDTH*0.05), (float) (Main.SCREEN_HEIGHT * 0.75));
+        errorLabel.setAlignment(Align.center);
+
+
+        errorLabel.setWrap(true);
+        errorLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.9));
+
+        stage.addActor(errorLabel);
 
         checkLogic();
         callLogic();
@@ -102,7 +113,7 @@ public class GameScreen extends ScreenState implements Observer {
                         "check",
                         0,
                         checkWindow,
-                        checkLabel
+                        errorLabel
                 );
             }
         });
@@ -160,7 +171,13 @@ public class GameScreen extends ScreenState implements Observer {
         confirmCallButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(), "call", 0, callWindow, callLabel);
+                PlayerController.getInstance().performAction(
+                        PlayerController.getInstance().getCurrentTable().getPlayerId(),
+                        "call",
+                        0,
+                        callWindow,
+                        errorLabel
+                );
             }
         });
 
@@ -231,7 +248,13 @@ public class GameScreen extends ScreenState implements Observer {
                     if (raiseAmount <= 0){
                         throw new NumberFormatException();
                     }
-                    PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(), "raise", raiseAmount, raiseWindow, raiseLabel);
+                    PlayerController.getInstance().performAction(
+                            PlayerController.getInstance().getCurrentTable().getPlayerId(),
+                            "raise",
+                            raiseAmount,
+                            raiseWindow,
+                            errorLabel
+                    );
                 } catch (NumberFormatException e) {
                     raiseLabel.setText("Invalid input");
                     System.out.println("Invalid input");
@@ -293,7 +316,12 @@ public class GameScreen extends ScreenState implements Observer {
         confirmFoldButton.addListener(new ClickListener() {
            @Override
            public void clicked(InputEvent event, float x, float y){
-               PlayerController.getInstance().performAction(PlayerController.getInstance().getCurrentTable().getPlayerId(),"fold",0,foldWindow,foldLabel);
+               PlayerController.getInstance().performAction(
+                       PlayerController.getInstance().getCurrentTable().getPlayerId(),
+                       "fold",
+                       0,
+                       foldWindow,
+                       errorLabel);
            }
         });
 
@@ -332,6 +360,7 @@ public class GameScreen extends ScreenState implements Observer {
         System.out.println("Got an update");
         potLabel.setText("Pot: "+playerTable.getPot());
         stackLabel.setText("Stack: "+playerTable.getStack());
+        errorLabel.setText("");
         if (playerTable.getCurrentTurn() == null){
             turnLabel.setText("Game is starting, please wait");
         } else if (playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){

@@ -21,17 +21,47 @@ public class PlayerTable implements Subject{
         this.playerId = playerId;
     }
 
-    // This can be done better so that everything is updated only when something is different but its low priority
     public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, ArrayList<Card> playerHand, int stack, String currentPlayer){
-        this.pot = pot;
-        this.currentTurn=currentTurn;
-        this.communityCards=communityCards;
-        this.playerHand=playerHand;
-        this.stack=stack;
-        this.currentPlayer=currentPlayer;
-        System.out.println("Update");
-        notifyObservers();
+        boolean different = false;
+
+        // Compare each field and update only if there's a change
+        if (this.pot != pot) {
+            this.pot = pot;
+            different = true;
+        }
+
+        if (this.currentTurn == null || !this.currentTurn.equals(currentTurn)) {
+            this.currentTurn = currentTurn;
+            different = true;
+        }
+
+        if (this.communityCards == null || !this.communityCards.equals(communityCards)) {
+            this.communityCards = communityCards;
+            different = true;
+        }
+
+        if (this.playerHand == null || !this.playerHand.equals(playerHand)) {
+            this.playerHand = playerHand;
+            different = true;
+        }
+
+        if (this.stack != stack) {
+            this.stack = stack;
+            different = true;
+        }
+
+        if (this.currentPlayer == null || !this.currentPlayer.equals(currentPlayer)) {
+            this.currentPlayer = currentPlayer;
+            different = true;
+        }
+
+        // If any field was different, notify observers
+        if (different) {
+            System.out.println("Update");
+            notifyObservers();
+        }
     }
+
     public String getTableId() {
         return tableId;
     }

@@ -20,12 +20,7 @@ public class InputManager implements InputProcessor {
     }
     public static InputManager getInstance(ViewManager viewManager, FirestoreTableListener firestoreListener) {
         if (instance == null) {
-            synchronized (InputManager.class) {
-                if (instance == null) {
-                    instance = new InputManager(viewManager, firestoreListener);
-
-                }
-            }
+            instance = new InputManager(viewManager, firestoreListener);
         }
         return instance;
     }

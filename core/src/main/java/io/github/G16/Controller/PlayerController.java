@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Timer;
 
+import io.github.G16.Main;
 import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.GameScreen;
 
@@ -30,13 +31,12 @@ public class PlayerController {
         return currentTable;
     }
 
-
-
     public void joinLobby(String code, String name, TextField codeField, TextButton button){
         String url = "https://us-central1-pokergame-007.cloudfunctions.net/joinTable?tableId=table"+code+"&name="+name;
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
         request.setUrl(url);
         request.setTimeOut(5000);
+        if (button != null) button.setDisabled(true);
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
@@ -65,7 +65,7 @@ public class PlayerController {
                     if (codeField!=null){
                         codeField.setText("Failed to join lobby");
                     }
-
+                    if (button != null) button.setDisabled(false);
                 }
             }
 
@@ -73,15 +73,15 @@ public class PlayerController {
             public void failed(Throwable t) {
                 Gdx.app.log("HTTP", "Request failed: " + t.getMessage());
                 codeField.setText("Connection Error");
+                if (button != null) button.setDisabled(false);
             }
 
             @Override
             public void cancelled() {
                 Gdx.app.log("HTTP", "Request cancelled");
+                if (button != null) button.setDisabled(false);
             }
         });
-
-
     }
 
     private String extractPlayerId(String responseText) {
@@ -92,13 +92,22 @@ public class PlayerController {
         return null;
     }
 
-    public void createLobby(Label codeLabel, String name, TextButton button){
-        String tableId = "" + System.currentTimeMillis();
+    public void createLobby(Label codeLabel, String name, TextButton button) {
+        String tableId = generateRandomCode();
+        tryCreateLobby(tableId, codeLabel, name, button);
+    }
+
+    private String generateRandomCode() {
+        return String.valueOf(100000 + (int)(Math.random() * 900000));
+    }
+
+    private void tryCreateLobby(String tableId, Label codeLabel, String name, TextButton button) {
         String url = "https://us-central1-pokergame-007.cloudfunctions.net/createTable?tableId=table" + tableId;
 
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
         request.setUrl(url);
         request.setTimeOut(5000);
+        if (button != null) button.setDisabled(true);
 
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
@@ -107,10 +116,18 @@ public class PlayerController {
                 if (statusCode == HttpStatus.SC_OK) {
                     Gdx.app.log("HTTP", "Lobby Created Successfully: " + tableId);
                     codeLabel.setText(tableId);
-                    joinLobby(tableId,name,null,button);
+                    joinLobby(tableId, name, null, button);
                 } else {
-                    Gdx.app.log("HTTP", "Error creating lobby: " + statusCode);
-                    codeLabel.setText("Failed to create lobby");
+                    String responseText = httpResponse.getResultAsString();
+                    Gdx.app.log("HTTP", "Error creating lobby: " + statusCode + " - " + responseText);
+                    if (responseText != null && responseText.contains("Table already exists")) {
+                        Gdx.app.log("HTTP", "Table already exists, trying a new code...");
+                        String newTableId = generateRandomCode();
+                        tryCreateLobby(newTableId, codeLabel, name, button);  // Retry with a new code
+                    } else {
+                        codeLabel.setText("Failed to create lobby");
+                        if (button != null) button.setDisabled(false);
+                    }
                 }
             }
 
@@ -118,45 +135,62 @@ public class PlayerController {
             public void failed(Throwable t) {
                 Gdx.app.log("HTTP", "Request failed: " + t.getMessage());
                 codeLabel.setText("Connection Error");
+                if (button != null) button.setDisabled(false);
             }
 
             @Override
             public void cancelled() {
                 Gdx.app.log("HTTP", "Request cancelled");
+                if (button != null) button.setDisabled(false);
             }
         });
-
     }
 
-    public void performAction(String playerId, String action, int amount, Window infoWindow, Label infoLabel){
+
+
+    public void performAction(String playerId, String action, int amount, Window infoWindow, Label errorLabel){
+
         String url = "https://us-central1-pokergame-007.cloudfunctions.net/performAction?playerId="+playerId+"&action="+action+"&amount="+amount;
 
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
         request.setUrl(url);
         request.setTimeOut(5000);
-
+        infoWindow.setTouchable(null);
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
+
+                infoWindow.setVisible(false);
+                infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
                 int statusCode = httpResponse.getStatus().getStatusCode();
                 if (statusCode == HttpStatus.SC_OK) {
                     Gdx.app.log("HTTP", "Action performed successfully");
-                    infoWindow.setVisible(false);
+                    errorLabel.setText("");
                 } else {
                     Gdx.app.log("HTTP", "Error performing action: " + statusCode);
-                    infoLabel.setText("Error performing action");
+
+                    String responseText = httpResponse.getResultAsString();
+                    if (responseText != null && !responseText.isEmpty()){
+                        errorLabel.setText(responseText.replace("player "+currentTable.getPlayerId()+"'s","your").replace("Player "+currentTable.getPlayerId()+" ","You "));
+                    } else {
+                        errorLabel.setText("Error performing action. Status code: " + statusCode);
+                    }
                 }
             }
 
             @Override
             public void failed(Throwable t) {
                 Gdx.app.log("HTTP", "Request failed: " + t.getMessage());
-                infoLabel.setText("Error performing action");
+                errorLabel.setText(t.getMessage());
+                infoWindow.setVisible(false);
+                infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
             }
 
             @Override
             public void cancelled() {
                 Gdx.app.log("HTTP", "Request cancelled");
+                infoWindow.setVisible(false);
+                infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
             }
         });
     }
@@ -186,19 +220,21 @@ public class PlayerController {
                     }, 1f);
                 } else {
                     Gdx.app.log("HTTP", "Error updating player status: " + statusCode);
+                    button.setDisabled(false);
                 }
             }
 
             @Override
             public void failed(Throwable t) {
                 Gdx.app.log("HTTP", "Failed to update player status: " + t.getMessage());
+                button.setDisabled(false);
             }
 
             @Override
             public void cancelled() {
                 Gdx.app.log("HTTP", "Player status update request cancelled");
+                button.setDisabled(false);
             }
         });
     }
-
 }
