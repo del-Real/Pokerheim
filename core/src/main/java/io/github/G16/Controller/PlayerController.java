@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Timer;
 
-import io.github.G16.Main;
 import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.GameScreen;
 
@@ -181,7 +180,7 @@ public class PlayerController {
             @Override
             public void failed(Throwable t) {
                 Gdx.app.log("HTTP", "Request failed: " + t.getMessage());
-                errorLabel.setText(t.getMessage());
+                errorLabel.setText("An error occurred");
                 infoWindow.setVisible(false);
                 infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
             }

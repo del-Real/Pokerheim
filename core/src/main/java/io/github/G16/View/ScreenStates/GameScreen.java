@@ -37,8 +37,11 @@ public class GameScreen extends ScreenState implements Observer {
     public void show(){
         super.show();
         turnLabel = new Label("Not Your Turn", skin);
-        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.35), (float) (Main.SCREEN_HEIGHT * 0.9));
+        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.9));
         turnLabel.setAlignment(Align.center);
+
+        turnLabel.setWrap(true);
+        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.9));
 
         stage.addActor(turnLabel);
 
@@ -54,6 +57,7 @@ public class GameScreen extends ScreenState implements Observer {
 
         stage.addActor(errorLabel);
 
+        betLogic();
         checkLogic();
         callLogic();
         raiseLogic();
@@ -61,7 +65,7 @@ public class GameScreen extends ScreenState implements Observer {
 
 
         Window stackWindow = new Window("", skin);
-        stackWindow.setPosition((float)(Main.SCREEN_WIDTH*0.10),(float)(Main.SCREEN_HEIGHT*0.275));
+        stackWindow.setPosition((float)(Main.SCREEN_WIDTH*0.1),(float)(Main.SCREEN_HEIGHT*0.8));
         stackWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
         stackLabel = new Label("Chips: 0",skin);
@@ -72,8 +76,8 @@ public class GameScreen extends ScreenState implements Observer {
         stage.addActor(stackWindow);
 
         Window potWindow = new Window("", skin);
-        potWindow.setPosition((float)(Main.SCREEN_WIDTH*0.35),(float)(Main.SCREEN_HEIGHT*0.8));
-        potWindow.setSize((float)(Main.SCREEN_WIDTH*0.30),(float)(Main.SCREEN_HEIGHT*0.075));
+        potWindow.setPosition((float)(Main.SCREEN_WIDTH*0.6),(float)(Main.SCREEN_HEIGHT*0.8));
+        potWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
         potLabel = new Label("Pot: 0",skin);
         potLabel.setAlignment(Align.center);
@@ -83,7 +87,86 @@ public class GameScreen extends ScreenState implements Observer {
         stage.addActor(potWindow);
 
     }
+    private void betLogic(){
 
+        TextButton betButton = new TextButton("BET", skin);
+        betButton.setPosition((float) (Main.SCREEN_WIDTH*0.05),(float)(Main.SCREEN_HEIGHT*0.25));
+        betButton.setSize((float) (Main.SCREEN_WIDTH*0.4), (float)(Main.SCREEN_HEIGHT*0.075));
+
+        stage.addActor(betButton);
+
+        final Window betWindow = new Window("", skin);
+        betWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        betWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
+        betWindow.setVisible(false);
+
+        Label betLabel = new Label("Bet Amount", skin);
+        betLabel.setAlignment(Align.center);
+        betWindow.add(betLabel).expandX().fillX().pad(10);
+
+        final TextField betAmountField = new TextField("", skin);
+        betAmountField.setMessageText("Enter amount");
+        betAmountField.setAlignment(Align.center);
+        betWindow.row();
+        betWindow.add(betAmountField).expandX().fillX().pad(10);
+
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
+        TextButton confirmBetButton = new TextButton("CONFIRM", skin);
+        confirmBetButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                String amountText = betAmountField.getText();
+                try {
+                    int betAmount = Integer.parseInt(amountText);
+                    if (betAmount <= 0){
+                        throw new NumberFormatException();
+                    }
+                    PlayerController.getInstance().performAction(
+                            PlayerController.getInstance().getCurrentTable().getPlayerId(),
+                            "bet",
+                            betAmount,
+                            betWindow,
+                            errorLabel
+                    );
+                } catch (NumberFormatException e) {
+                    betLabel.setText("Invalid input");
+                    System.out.println("Invalid input");
+                }
+            }
+        });
+
+        TextButton backButton = new TextButton("BACK", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                betWindow.setVisible(false);
+                currentOpenWindow=null;
+            }
+        });
+
+        buttonTable.add(confirmBetButton).expandX().fillX();
+        buttonTable.add(backButton).expandX().fillX();
+
+        betWindow.row();
+        betWindow.add(buttonTable).expandX().fillX();
+
+        stage.addActor(betWindow);
+
+        betButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
+                betWindow.setVisible(true);
+                currentOpenWindow=betWindow;
+            }
+        });
+
+    }
     private void checkLogic() {
         TextButton checkButton = new TextButton("CHECK", skin);
         checkButton.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.05));

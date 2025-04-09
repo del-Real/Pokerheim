@@ -1,6 +1,5 @@
 package io.github.G16.Model;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import io.github.G16.Assets;
@@ -8,9 +7,7 @@ import io.github.G16.Assets;
 public class Card {
     private final Rank rank;
     private final Suit suit;
-    private boolean faceUp;
-    private Sprite sprite;
-    private TextureRegion textureRegion;
+    private final TextureRegion textureRegion;
 
     private static final int CARD_WIDTH = 69; // Width of each card in the texture
     private static final int CARD_HEIGHT = 93; // Height of each card in the texture
@@ -34,8 +31,6 @@ public class Card {
                 CARD_WIDTH,
                 CARD_HEIGHT
         );
-        this.faceUp=true;
-        this.sprite = new Sprite(textureRegion);
 
     }
 
