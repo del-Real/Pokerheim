@@ -64,6 +64,18 @@ public class CreateLobbyScreen extends ScreenState{
         });
         stage.addActor(nameField);
 
+
+        errorLabel = new Label("",skin);
+        errorLabel.setPosition((float) (Main.SCREEN_WIDTH*0.05), (float) (Main.SCREEN_HEIGHT * 0.75));
+        errorLabel.setAlignment(Align.center);
+
+
+        errorLabel.setWrap(true);
+        errorLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.9));
+
+        stage.addActor(errorLabel);
+
+
         TextButton generateButton = new TextButton("GENERATE LOBBY CODE", skin);
         generateButton.setPosition((float) (Main.SCREEN_WIDTH * 0.3), (float) (Main.SCREEN_HEIGHT * 0.20));
         generateButton.setSize((float) (Main.SCREEN_WIDTH * 0.4), (float) (Main.SCREEN_HEIGHT * 0.05));
@@ -74,12 +86,13 @@ public class CreateLobbyScreen extends ScreenState{
             public void clicked(InputEvent event, float x, float y) {
                 generateButton.setDisabled(true);
                 codeLabel.setText("Generating code");
-                PlayerController.getInstance().createLobby(codeLabel, nameField.getText(), generateButton);
+                PlayerController.getInstance().createLobby(codeLabel, nameField.getText(), generateButton, errorLabel);
 
             }
         });
 
         stage.addActor(codeField);
         stage.addActor(generateButton);
+
     }
 }

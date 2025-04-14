@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import io.github.G16.Controller.InputManager;
@@ -13,14 +14,10 @@ public abstract class ScreenState implements Screen {
     protected InputManager inputManager;
     protected Stage stage;
     protected Skin skin;
-
+    protected Label errorLabel;
     public ScreenState(InputManager inputManager){
         this.inputManager=inputManager;
         skin = new Skin(Gdx.files.internal("uiskin/skin/terra-mother-ui.json"));
-    }
-
-    public void create(){
-
     }
     public void show() {
         stage = new Stage();

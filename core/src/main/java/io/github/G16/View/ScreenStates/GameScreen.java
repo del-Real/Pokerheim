@@ -28,7 +28,6 @@ public class GameScreen extends ScreenState implements Observer {
     private Label stackLabel;
     private Label turnLabel;
     private Window currentOpenWindow=null;
-    private Label errorLabel;
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }

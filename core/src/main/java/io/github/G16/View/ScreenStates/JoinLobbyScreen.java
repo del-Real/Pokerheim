@@ -77,6 +77,16 @@ public class JoinLobbyScreen extends ScreenState {
         });
         stage.addActor(nameField);
 
+        errorLabel = new Label("",skin);
+        errorLabel.setPosition((float) (Main.SCREEN_WIDTH*0.05), (float) (Main.SCREEN_HEIGHT * 0.75));
+        errorLabel.setAlignment(Align.center);
+
+
+        errorLabel.setWrap(true);
+        errorLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.9));
+
+        stage.addActor(errorLabel);
+
         TextButton confirmButton = new TextButton("CONFIRM", skin);
         confirmButton.setPosition((float) (Main.SCREEN_WIDTH * 0.40), (float) (Main.SCREEN_HEIGHT * 0.20));
         confirmButton.setSize((float) (Main.SCREEN_WIDTH * 0.2), (float) (Main.SCREEN_HEIGHT * 0.05));
@@ -93,7 +103,7 @@ public class JoinLobbyScreen extends ScreenState {
                 Make so that when a valid code is entered, the button clicked function
                 Makes the player ready and the text becomes ready
                  */
-                PlayerController.getInstance().joinLobby(codeField.getText(),nameField.getText(),codeField, confirmButton);
+                PlayerController.getInstance().joinLobby(codeField.getText(),nameField.getText(),codeField, confirmButton, errorLabel);
             }
         });
 
