@@ -27,6 +27,7 @@ public class GameScreen extends ScreenState implements Observer {
     private Label potLabel;
     private Label stackLabel;
     private Label turnLabel;
+    private Label lastActionLabel;
     private Window currentOpenWindow=null;
     public GameScreen(InputManager inputManager){
         super(inputManager);
@@ -36,13 +37,22 @@ public class GameScreen extends ScreenState implements Observer {
     public void show(){
         super.show();
         turnLabel = new Label("Not Your Turn", skin);
-        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.9));
+        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.95));
         turnLabel.setAlignment(Align.center);
 
         turnLabel.setWrap(true);
-        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.9));
+        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.4));
 
         stage.addActor(turnLabel);
+
+        lastActionLabel = new Label("", skin);
+        lastActionLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.55), (float) (Main.SCREEN_HEIGHT * 0.95));
+        lastActionLabel.setAlignment(Align.center);
+
+        lastActionLabel.setWrap(true);
+        lastActionLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.4));
+
+        stage.addActor(lastActionLabel);
 
         skin.getFont("font").getData().setScale(3f);
 
@@ -449,6 +459,11 @@ public class GameScreen extends ScreenState implements Observer {
             turnLabel.setText("Your turn");
         } else {
             turnLabel.setText(playerTable.getCurrentPlayer()+"'s turn");
+        }
+        if (playerTable.getLastAction() == null) {
+            lastActionLabel.setText("");
+        } else {
+            lastActionLabel.setText(playerTable.getLastAction());
         }
         ArrayList<Card> communityCards = playerTable.getCommunityCards();
         int i=0;

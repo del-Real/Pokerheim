@@ -41,6 +41,8 @@ public class FirestoreListener implements FirestoreTableListener{
                             Long pot = value.getLong("pot");
                             String currentTurn = value.getString("currentTurn");
 
+                            String lastAction = value.getString("last_action");
+
                             ArrayList<Card> communityCards = new ArrayList<>();
                             List<Map<String, Object>> rawCards = (List<Map<String, Object>>) value.get("community_cards");
                             if (rawCards != null) {
@@ -94,9 +96,9 @@ public class FirestoreListener implements FirestoreTableListener{
                                     }
                                 }
 
-                                // Update playerTable with current player name
+                                // Update playerTable with current player name and lastAction
                                 if (pot != null && currentTurn != null && stack != null) {
-                                    playerTable.updateTable(pot.intValue(), currentTurn, communityCards, playerCards, stack.intValue(), currentPlayerName);
+                                    playerTable.updateTable(pot.intValue(), currentTurn, communityCards, playerCards, stack.intValue(), currentPlayerName, lastAction);
                                     System.out.println("PlayerTable updated!");
                                 } else {
                                     System.out.println("Missing data to update PlayerTable.");
@@ -106,6 +108,7 @@ public class FirestoreListener implements FirestoreTableListener{
                     }
                 });
     }
+
 
     public void stopListening() {
         if (registration != null) {

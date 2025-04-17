@@ -4,15 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
 import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
 
 public class MainMenuScreen extends ScreenState {
     private Texture logo;
-    private Image logoImage;
 
     public MainMenuScreen(InputManager inputManager) {
         super(inputManager);
@@ -23,11 +24,20 @@ public class MainMenuScreen extends ScreenState {
         super.show();
         Gdx.gl.glClearColor(0.5f, 0.9f, 0.7f, 1f);
 
+
+        Label creditLabel = new Label("UI Skin by Raymond 'Raeleus' Buckley (Terra Mother UI)",skin);
+        creditLabel.setPosition((float) (Main.SCREEN_WIDTH*0.05), (float) (Main.SCREEN_HEIGHT*0.025));
+        creditLabel.setAlignment(Align.center);
+        creditLabel.setWrap(true);
+        creditLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.9));
+        stage.addActor(creditLabel);
+        creditLabel.setFontScale(2f);
+
         skin.getFont("font").getData().setScale(4f);
 
         // Logo
         logo = new Texture(Gdx.files.internal("pokerheim_logo.png"));
-        logoImage = new Image(logo);
+        Image logoImage = new Image(logo);
 
         // Set logo size
         float logoWidth = Main.SCREEN_WIDTH * 0.7f;

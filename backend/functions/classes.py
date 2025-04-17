@@ -114,6 +114,7 @@ class Table:
         self.dealer_position = 0  # Index of the dealer in player_order
         self.last_raiser = None  # To track when betting round ends
         self.minimum_raise = self.big_blind
+        self.last_action = None  # This will store the last action description
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -138,6 +139,8 @@ class Table:
             
         table.bets = data.get("bets", {})
         table.last_raiser = data.get("last_raiser")
+
+        table.last_action = data.get("last_action", "")
         
         return table
     
@@ -410,33 +413,34 @@ class Table:
             "round": self.round,
             "dealer_position": self.dealer_position,
             "last_raiser": self.last_raiser,
-            "minimum_raise": self.minimum_raise
+            "minimum_raise": self.minimum_raise,
+            "last_action": self.last_action
         }
     
     # ACTIONS
     def perform_action(self, playerId: str, action: str, amount: int = 0):
         if playerId not in self.players:
             raise ValueError(f"Player {playerId} does not exist in the table.")
-            
+
         if playerId != self.currentTurn:
             raise ValueError(f"It's not player {playerId}'s turn.")
-            
+
         player = self.players[playerId]
-        
+
         if player.folded or player.all_in:
             raise ValueError(f"Player {playerId} cannot act (folded or all-in).")
-        
+
         if action == "bet" or action == "raise":
             # Convert bet to raise if there's already a bet
             if self.current_bet > 0:
                 action = "raise"
-                
+
             # Validate raise/bet amount
             if action == "bet":
                 # First bet must be at least the big blind
                 if amount < self.big_blind:
                     raise ValueError(f"Bet must be at least the big blind ({self.big_blind}).")
-                    
+
                 # Cannot bet more than you have
                 bet_amount = min(amount, player.stack)
                 player.stack -= bet_amount
@@ -445,23 +449,23 @@ class Table:
                 self.bets[playerId] = bet_amount
                 self.current_bet = bet_amount
                 self.minimum_raise = bet_amount
-                
+
             else:  # raise
                 # Raise must be at least the current bet plus the minimum raise
                 minimum_total = self.current_bet + self.minimum_raise
                 if amount < minimum_total:
                     raise ValueError(f"Raise total must be at least {minimum_total}.")
-                    
+
                 # Calculate how much more the player needs to add
                 to_call = self.current_bet - self.bets[playerId]
                 raise_amount = amount - self.current_bet
-                
+
                 # Cannot raise more than you have
                 total_amount = min(to_call + raise_amount, player.stack)
                 bet_amount = min(to_call + raise_amount, player.stack + self.bets[playerId])
                 player.stack -= total_amount
                 self.bets[playerId] += total_amount
-                
+
                 # If player doesn't have enough to complete the raise, they go all-in
                 if total_amount < to_call + raise_amount:
                     player.all_in = True
@@ -469,39 +473,47 @@ class Table:
                     # Set the new current bet and minimum raise
                     self.current_bet = bet_amount
                     self.minimum_raise = bet_amount
-                    
+
             # Player who raises becomes the last raiser
             self.last_raiser = playerId
-            
+
+            # Update last action
+            self.last_action = f"{player.name} {action} {amount}"  # Action message format like "John raised 50"
+
         elif action == "fold":
             player.folded = True
-            
+            self.last_action = f"{player.name} folded"
+
         elif action == "call":
             to_call = self.current_bet - self.bets[playerId]
-            
+
             # Cannot call more than you have
             call_amount = min(to_call, player.stack)
             player.stack -= call_amount
             self.bets[playerId] += call_amount
-            
+
             # If player can't match the full bet, they go all-in
             if call_amount < to_call or player.stack == 0:
                 player.all_in = True
-                
+
+            self.last_action = f"{player.name} called {to_call}"
+
         elif action == "check":
             # Can only check if no bet has been made or player has matched current bet
             if self.current_bet > self.bets[playerId]:
                 raise ValueError("Cannot check when there's an active bet.")
-                
+
+            self.last_action = f"{player.name} checked"
+
         else:
             raise ValueError(f"Unknown action: {action}")
-            
+
         # Check if the round is complete after this action
         if self.check_round_complete():
             self.conclude_round()
         else:
             # Move to the next player
             self.next_player()
-            
+
         return True
-    
+
