@@ -14,6 +14,54 @@ import random
 cred = credentials.Certificate('creds.json')
 app = initialize_app(cred)
 db: google.cloud.firestore.Client = firestore.client()
+players_ref = db.collection("players")
+tables_ref = db.collection("tables")
+
+etc = ['players']
+public = ['pot', 'currentTurn', 'community_cards', 'last_action']
+
+def write_table_to_firestore(table: Table, ref=None) -> None:
+    """Write a table to Firestore"""
+    if ref is None:
+        ref = tables_ref.document(table.tableId)
+    table_dict = table.to_dict()
+    # save private data in subcollection
+    private_data = {key: table_dict[key] for key in table_dict if key not in public and key not in etc}
+    public_data = {key: table_dict[key] for key in table_dict if key in public}
+    # save public data in the main document
+    ref.set(public_data)
+    # save private data in a subcollection
+    private_ref = ref.collection("private").document("info")
+    private_ref.set(private_data)
+    # save players in a subcollection
+    for playerId, player in table.players.items():
+        player_ref = ref.collection("players").document(playerId)
+        player_dict = player.to_dict()
+        player_ref.set(player_dict)
+
+def read_table_from_firestore(tableId: str) -> Table:
+    """Read a table from Firestore"""
+    table_doc_ref = tables_ref.document(tableId)
+    if not table_doc_ref.get().exists:
+        raise ValueError("Table does not exist")
+    # Get the public data
+    public_data = table_doc_ref.get().to_dict()
+    # Get the private data
+    private_data = table_doc_ref.collection("private").document("info").get().to_dict()
+    # Get the players data
+    players_data = table_doc_ref.collection("players").stream()
+    players = {}
+    for player in players_data:
+        players[player.id] = player.to_dict()
+    # combine the three data into a single dictionary
+    public_data.update(private_data)
+    public_data['players'] = players
+    table = Table.from_dict(public_data)
+    return table
+
+def gen_key() -> str:
+    """Generate a random key"""
+    return str(random.randint(0, 1000000)).zfill(6)
 
 @https_fn.on_request()
 def createTable(req: https_fn.Request) -> https_fn.Response:
@@ -21,55 +69,41 @@ def createTable(req: https_fn.Request) -> https_fn.Response:
     try:    
         tableId = req.args.get("tableId")
     except KeyError:
-        tableId = random.randint(0, 1000000)
-        tableId = str(tableId)
-        tableId = tableId.zfill(6)
+        tableId = gen_key()
+    if tableId is None:
+        tableId = gen_key()
     
-    # Check if the tableId already exists
-    tables_ref = db.collection("tables")
-    doc_ref = tables_ref.document(tableId)
-    if doc_ref.get().exists:
-        # If it exists, return an error
+    table_doc_ref = tables_ref.document(tableId)
+    if table_doc_ref.get().exists:
         return https_fn.Response("Table already exists", status=400)
+    
     new_table = Table(tableId)
-
-    # Add the table to the tables collection
-    tables_ref = db.collection("tables")
-    doc_ref = tables_ref.document(new_table.tableId)
-    doc_ref.set(new_table.to_dict())
-    return https_fn.Response("tableId: " + new_table.tableId, status=200)
+    write_table_to_firestore(new_table)
+    return https_fn.Response("tableId: " + tableId, status=200)
 
 @https_fn.on_request()
 def joinTable(req: https_fn.Request) -> https_fn.Response:
     """Join a table document in the tables collection"""
     try:
-        tableId = tableId = req.args.get("tableId")
+        tableId = req.args.get("tableId")
         name = req.args.get("name")
     except KeyError:
         return https_fn.Response("No tableId or playerId provided", status=400)
     # Check if the tableId exists
-    tables_ref = db.collection("tables")
-    doc_ref = tables_ref.document(tableId)
-    if not doc_ref.get().exists:
+    try:
+        table = read_table_from_firestore(tableId)
+    except ValueError:
         return https_fn.Response("Table does not exist", status=400)
-
-    # Get the table document
-    tables_ref = db.collection("tables")
-    doc_ref = tables_ref.document(tableId)
-    table = Table.from_dict(doc_ref.get().to_dict())
-
     player = Player(name=name)
-    # Add the player to the table
     table.add_player(player)
-    doc_ref.set(table.to_dict())
 
+    write_table_to_firestore(table)
 
     # Add the player to the players collection: key = playerId, value = tableId
-    players_ref = db.collection("players")
     doc_ref = players_ref.document(player.playerId)
-    doc_ref.set({"tableId": table.tableId})
+    doc_ref.set({"tableId": tableId, "name": name})
 
-    return https_fn.Response("playerId: " + player.playerId, status=200)
+    return https_fn.Response("playerId: " + player.playerId, status=200)    
 
 @https_fn.on_request()
 def performAction(req: https_fn.Request) -> https_fn.Response:
@@ -82,20 +116,20 @@ def performAction(req: https_fn.Request) -> https_fn.Response:
         return https_fn.Response("Parameters missing", status=400)
     
     # Check if the playerId exists
-    players_ref = db.collection("players")
     players_doc_ref = players_ref.document(playerId)
     if not players_doc_ref.get().exists:
         return https_fn.Response("Player does not exist", status=400)
+    
     # Get the tableId from the player document
     player_data = players_doc_ref.get().to_dict()
     tableId = player_data["tableId"]
+
     # Check if the tableId exists
-    tables_ref = db.collection("tables")
-    tables_doc_ref = tables_ref.document(tableId)
-    if not tables_doc_ref.get().exists:
+    try:
+        table = read_table_from_firestore(tableId)
+    except ValueError:
         return https_fn.Response("Table does not exist", status=400)
-    # Get the table document
-    table = Table.from_dict(tables_doc_ref.get().to_dict())
+    
     # Check if the playerId exists in the table
     if playerId not in table.players:
         return https_fn.Response("Player does not exist in the table", status=400)
@@ -104,7 +138,7 @@ def performAction(req: https_fn.Request) -> https_fn.Response:
     try:
         table.perform_action(playerId, action, amount)
         # Update the table document
-        tables_doc_ref.set(table.to_dict())
+        write_table_to_firestore(table)
     except Exception as e:
         return https_fn.Response("Error performing action: " + str(e), status=400)
 
@@ -119,7 +153,6 @@ def playerStatus(req: https_fn.Request) -> https_fn.Response:
     except KeyError:
         return https_fn.Response("Parameters missing", status=400)
     # Check if the playerId exists
-    players_ref = db.collection("players")
     players_doc_ref = players_ref.document(playerId)
     if not players_doc_ref.get().exists:
         return https_fn.Response("Player does not exist", status=400)
@@ -127,19 +160,18 @@ def playerStatus(req: https_fn.Request) -> https_fn.Response:
     player_data = players_doc_ref.get().to_dict()
     tableId = player_data["tableId"]
     # Check if the tableId exists
-    tables_ref = db.collection("tables")
     tables_doc_ref = tables_ref.document(tableId)
     if not tables_doc_ref.get().exists:
         return https_fn.Response("Table does not exist", status=400)
     # Get the table document
-    table = Table.from_dict(tables_doc_ref.get().to_dict())
+    table = read_table_from_firestore(tableId)
     # Check if the playerId exists in the table
     if playerId not in table.players:
         return https_fn.Response("Player does not exist in the table", status=400)
     # Update the player status
     table.change_player_status(playerId, status)
     # Update the table document
-    tables_doc_ref.set(table.to_dict())
+    write_table_to_firestore(table, ref=tables_doc_ref)
     if table.start_game_possible():
         params = {
             "tableId": table.tableId,
@@ -149,7 +181,7 @@ def playerStatus(req: https_fn.Request) -> https_fn.Response:
 
 
 
-def create_task(delay:int, fn_name:str, params:dict) -> str:
+def create_task(delay:int, fn_name:str, params:dict=None) -> str:
     client = tasks_v2.CloudTasksClient()
 
     project = 'pokergame-007'
@@ -182,16 +214,17 @@ def create_task(delay:int, fn_name:str, params:dict) -> str:
 @https_fn.on_request()
 def cleanup(request: https_fn.Request):
     """Delete all empty tables"""
-    tables_ref = db.collection("tables")
-    docs = tables_ref.stream()
-    for doc in docs:
-        table = Table.from_dict(doc.to_dict())
-        if len(table.players) == 0 or table.status == "complete":
+    for table in tables_ref.stream():
+        table_id = table.id
+        local_players_ref = tables_ref.document(table_id).collection("players")
+        players = local_players_ref.stream()
+        player_count = sum(1 for _ in players)
+        if player_count == 0:
             # Delete the table document
-            tables_ref.document(doc.id).delete()
-            print(f"Deleted table {doc.id}")
+            delete_table(tables_ref.document(table_id))
+            print(f"Deleted table {table.id}")
         else:
-            print(f"Table {doc.id} has players, not deleting")
+            print(f"Table {table.id} has players, not deleting")
     return https_fn.Response("OK", status=200)
 
 @https_fn.on_request()
@@ -202,19 +235,38 @@ def startGame(request: https_fn.Request):
     except KeyError:
         return https_fn.Response("Parameters missing", status=400)
     # Check if the tableId exists
-    tables_ref = db.collection("tables")
     tables_doc_ref = tables_ref.document(tableId)
     if not tables_doc_ref.get().exists:
         return https_fn.Response("Table does not exist", status=400)
     # Get the table document
-    table = Table.from_dict(tables_doc_ref.get().to_dict())
+    table = read_table_from_firestore(tableId)
     # Check if the game has already started
     if table.start_game_possible():
         table.start_game()
         # Update the table document
-        tables_doc_ref.set(table.to_dict())
+        write_table_to_firestore(table)
 
     return https_fn.Response("Game started", status=200)
+
+def delete_collection(coll_ref, batch_size=10):
+    docs = coll_ref.limit(batch_size).stream()
+    deleted = 0
+    for doc in docs:
+        print(f"Deleting document: {doc.id}")
+        doc.reference.delete()
+        deleted += 1
+    if deleted >= batch_size:
+        # Repeat until all docs are deleted
+        return delete_collection(coll_ref, batch_size)
+
+def delete_table(ref):
+    delete_collection(ref.collection('private'))
+    local_players_ref = ref.collection("players")
+    players = local_players_ref.stream()
+    for player in players:
+        players_ref.document(player.playerId).delete()
+    delete_collection(ref.collection('players'))
+    ref.delete()
 
 @https_fn.on_request()
 def queue_test(request: https_fn.Request):
