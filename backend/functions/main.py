@@ -1,4 +1,4 @@
-from firebase_functions import firestore_fn, https_fn
+from firebase_functions import firestore_fn, https_fn, scheduler_fn
 from firebase_admin import initialize_app, firestore, credentials
 import google.cloud.firestore
 import asyncio
@@ -94,16 +94,33 @@ def joinTable(req: https_fn.Request) -> https_fn.Response:
         table = read_table_from_firestore(tableId)
     except ValueError:
         return https_fn.Response("Table does not exist", status=400)
-    player = Player(name=name)
+    player = Player(name=name, last_action=datetime.datetime.utcnow())
     table.add_player(player)
 
     write_table_to_firestore(table)
 
     # Add the player to the players collection: key = playerId, value = tableId
     doc_ref = players_ref.document(player.playerId)
-    doc_ref.set({"tableId": tableId, "name": name})
+    doc_ref.set({"tableId": tableId, "name": name, "last_action": player.last_action})
 
-    return https_fn.Response("playerId: " + player.playerId, status=200)    
+    return https_fn.Response("playerId: " + player.playerId, status=200)
+
+@https_fn.on_request()
+def leaveTable(req: https_fn.Request) -> https_fn.Response:
+    """Leave a table document in the tables collection"""
+    try:
+        playerId = req.args.get("playerId")
+    except KeyError:
+        return https_fn.Response("No playerId provided", status=400)
+    
+    # Check if the playerId exists
+    players_doc_ref = players_ref.document(playerId)
+    if not players_doc_ref.get().exists:
+        return https_fn.Response("Player does not exist", status=400)
+    
+    delete_player(playerId)
+
+    return https_fn.Response("Player removed", status=200)
 
 @https_fn.on_request()
 def performAction(req: https_fn.Request) -> https_fn.Response:
@@ -122,6 +139,7 @@ def performAction(req: https_fn.Request) -> https_fn.Response:
     
     # Get the tableId from the player document
     player_data = players_doc_ref.get().to_dict()
+    players_doc_ref.update({"last_action": datetime.datetime.utcnow()})
     tableId = player_data["tableId"]
 
     # Check if the tableId exists
@@ -162,6 +180,7 @@ def playerStatus(req: https_fn.Request) -> https_fn.Response:
         return https_fn.Response("Player does not exist", status=400)
     # Get the tableId from the player document
     player_data = players_doc_ref.get().to_dict()
+    players_doc_ref.update({"last_action": datetime.datetime.utcnow()})
     tableId = player_data["tableId"]
     # Check if the tableId exists
     tables_doc_ref = tables_ref.document(tableId)
@@ -219,9 +238,21 @@ def create_task(delay:int, fn_name:str, params:dict=None) -> str:
     response = client.create_task(request={"parent": parent, "task": task})
     return response.name
 
+@scheduler_fn.on_schedule(schedule="every 1 hours")
 @https_fn.on_request()
 def cleanup(request: https_fn.Request):
-    """Delete all empty tables"""
+    """Delete empty tables and players that have not been active for 1 hour"""
+    now = datetime.datetime.utcnow()
+    # Get all players
+    players = players_ref.stream()
+    for player in players:
+        player_data = player.to_dict()
+        last_action = player_data["last_action"]
+        # Check if the player has not been active for 1 hour
+        if (now - last_action).total_seconds() > 3600:
+            # Delete the player from table
+            delete_player(player.id)
+    # Delete all empty tables
     for table in tables_ref.stream():
         table_id = table.id
         local_players_ref = tables_ref.document(table_id).collection("players")
@@ -276,9 +307,23 @@ def delete_table(ref):
     delete_collection(ref.collection('players'))
     ref.delete()
 
-@https_fn.on_request()
-def queue_test(request: https_fn.Request):
-    """Test the queue"""
-    create_task(10, "cleanup")
-    return https_fn.Response("Task created", status=200)
+def delete_player(playerId):
+    """Delete a player from the players collection"""
+    # Check if the playerId exists
+    players_doc_ref = players_ref.document(playerId)
+    if not players_doc_ref.get().exists:
+        return
+    tableId = players_doc_ref.get().to_dict()["tableId"]
+    players_doc_ref.delete()
+
+    # Check if the tableId exists
+    tables_doc_ref = tables_ref.document(tableId)
+    if not tables_doc_ref.get().exists:
+        return
+    # Delete the player from the table
+    table = read_table_from_firestore(tableId)
+    table.remove_player(playerId)
+    write_table_to_firestore(table)
+    tables_doc_ref.collection("players").document(playerId).delete()
+
     

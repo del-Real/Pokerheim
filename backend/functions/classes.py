@@ -54,14 +54,16 @@ class CardDeck:
     
 
 class Player:
-    def __init__(self, name: str, playerId: str = None):
+    def __init__(self, name: str, last_action, playerId: str = None):
         if playerId is None:
             playerId = random.randint(0, 1000000)
             playerId = str(playerId)
             self.playerId = playerId.zfill(6)
         else:
             self.playerId = playerId
+
         self.name = name
+        self.last_action = last_action
         self.cards = []
         self.stack = 1000  # Default starting stack
         self.folded = False
@@ -71,7 +73,7 @@ class Player:
 
     @classmethod
     def from_dict(cls, data: dict):
-        player = cls(data["name"], data["playerId"])
+        player = cls(data["name"], data["last_action"], data["playerId"])
         player.cards = [Card.from_dict(card) for card in data["cards"]]
         player.stack = data["stack"]
         player.folded = data.get("folded", False)
@@ -82,6 +84,7 @@ class Player:
     def to_dict(self):
         return {
             "playerId": self.playerId,
+            "last_action": self.last_action,
             "name": self.name,
             "cards": [card.to_dict() for card in self.cards],
             "stack": self.stack,
@@ -159,6 +162,10 @@ class Table:
 
     def remove_player(self, playerId: str):
         if playerId in self.players:
+            if self.currentTurn == playerId:
+                # If the player being removed is the current turn, move to the next player
+                self.next_player()
+
             del self.players[playerId]
             self.player_order.remove(playerId)
             if playerId in self.bets:
