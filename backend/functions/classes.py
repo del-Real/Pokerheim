@@ -176,7 +176,7 @@ class Table:
     def start_game_possible(self):
         # check if atleast 2 players are 'ready' and no game is in progress
         ready_players = [p for p in self.players.values() if p.status == "ready"]
-        if len(ready_players) >= 2 and self.status == "waiting":
+        if len(ready_players) >= 2 and (self.status == "waiting" or self.status == "complete"):
             return True
         return False
 
@@ -349,6 +349,11 @@ class Table:
         # If we've completed the river (round 3), evaluate hands and determine winner
         if self.round > 3:
             self.evaluate_hands()
+            for player in self.players.values():
+                if player.status == "playing":
+                    player.status = "ready"
+                if player.stack == 0:
+                    player.status = "spectating"
             return
             
         # Otherwise, start next betting round
@@ -397,6 +402,7 @@ class Table:
 
         # TODO : Handle ties and side pots if necessary
         # TODO : ready check before resetting the game - done from cloud function ??
+
     def to_dict(self):
         return {
             "tableId": self.tableId,

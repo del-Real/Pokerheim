@@ -133,12 +133,16 @@ def performAction(req: https_fn.Request) -> https_fn.Response:
     # Check if the playerId exists in the table
     if playerId not in table.players:
         return https_fn.Response("Player does not exist in the table", status=400)
-    
+    prev_status = table.status
     # Perform the action
     try:
         table.perform_action(playerId, action, amount)
         # Update the table document
         write_table_to_firestore(table)
+        new_status = table.status
+
+        if new_status == 'complete' and prev_status != 'complete':
+            create_task(20, "startGame", {"tableId": tableId})
     except Exception as e:
         return https_fn.Response("Error performing action: " + str(e), status=400)
 
@@ -168,6 +172,10 @@ def playerStatus(req: https_fn.Request) -> https_fn.Response:
     # Check if the playerId exists in the table
     if playerId not in table.players:
         return https_fn.Response("Player does not exist in the table", status=400)
+    if status not in ['ready', 'spectating']:
+        return https_fn.Response("Invalid status", status=400)
+    if status == 'ready' and table.players[playerId].stack <= table.minimum_raise:
+        return https_fn.Response("Player stack is too low", status=400)
     # Update the player status
     table.change_player_status(playerId, status)
     # Update the table document
