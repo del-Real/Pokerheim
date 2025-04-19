@@ -87,14 +87,20 @@ def joinTable(req: https_fn.Request) -> https_fn.Response:
     try:
         tableId = req.args.get("tableId")
         name = req.args.get("name")
+        playerId = req.args.get("playerId", None)
     except KeyError:
-        return https_fn.Response("No tableId or playerId provided", status=400)
+        return https_fn.Response("No tableId or name provided", status=400)
     # Check if the tableId exists
     try:
         table = read_table_from_firestore(tableId)
     except ValueError:
         return https_fn.Response("Table does not exist", status=400)
-    player = Player(name=name, last_action=datetime.datetime.utcnow())
+    # Check if the playerId exists
+    if playerId is not None:
+        players_doc_ref = players_ref.document(playerId)
+        if players_doc_ref.get().exists:
+            return https_fn.Response("Player already exists", status=400)
+    player = Player(name=name, last_action=datetime.datetime.utcnow(), playerId=playerId)
     table.add_player(player)
 
     write_table_to_firestore(table)
@@ -238,18 +244,32 @@ def create_task(delay:int, fn_name:str, params:dict=None) -> str:
     response = client.create_task(request={"parent": parent, "task": task})
     return response.name
 
-@scheduler_fn.on_schedule(schedule="every 1 hours")
 @https_fn.on_request()
 def cleanup(request: https_fn.Request):
+    try:
+        ttl = int(request.args.get("ttl", 3600))
+    except ValueError:
+        return https_fn.Response("Invalid ttl value", status=400)
+    clean_old_data(ttl)
+    return https_fn.Response("Cleanup done", status=200)
+
+@scheduler_fn.on_schedule(schedule="every 1 hours")
+def scheduled_cleanup():
+    """Scheduled function to clean up old data"""
+    clean_old_data(3600)
+    return https_fn.Response("Scheduled cleanup done", status=200)
+
+def clean_old_data(ttl:int = 3600):
     """Delete empty tables and players that have not been active for 1 hour"""
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     # Get all players
     players = players_ref.stream()
     for player in players:
         player_data = player.to_dict()
         last_action = player_data["last_action"]
+        last_action = last_action.replace(tzinfo=datetime.timezone.utc)
         # Check if the player has not been active for 1 hour
-        if (now - last_action).total_seconds() > 3600:
+        if (now - last_action).total_seconds() > ttl:
             # Delete the player from table
             delete_player(player.id)
     # Delete all empty tables
@@ -264,7 +284,6 @@ def cleanup(request: https_fn.Request):
             print(f"Deleted table {table.id}")
         else:
             print(f"Table {table.id} has players, not deleting")
-    return https_fn.Response("OK", status=200)
 
 @https_fn.on_request()
 def startGame(request: https_fn.Request):
@@ -281,9 +300,13 @@ def startGame(request: https_fn.Request):
     table = read_table_from_firestore(tableId)
     # Check if the game has already started
     if table.start_game_possible():
+        print("Starting game")
+        table.reset_game()
         table.start_game()
         # Update the table document
         write_table_to_firestore(table)
+    else:
+        print("Cannot start game")
 
     return https_fn.Response("Game started", status=200)
 

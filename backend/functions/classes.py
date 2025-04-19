@@ -71,6 +71,12 @@ class Player:
         # STATUS: "playing", "spectating", "ready"
         self.status = "spectating"
 
+    def reset(self):
+        self.cards = []
+        self.folded = False
+        self.all_in = self.stack == 0
+        self.last_action = None
+
     @classmethod
     def from_dict(cls, data: dict):
         player = cls(data["name"], data["last_action"], data["playerId"])
@@ -150,15 +156,8 @@ class Table:
     def add_player(self, player: Player):
         if player.playerId not in self.players:
             self.players[player.playerId] = player
-            self.player_order.append(player.playerId)
-            self.bets[player.playerId] = 0
         else:
             raise ValueError(f"Player {player.playerId} already exists in the table.")
-        
-        # TODO: ready check
-        #if len(self.players) == 2 and self.status == "waiting":
-        #    self.status = "playing"
-        #    self.start_game()
 
     def remove_player(self, playerId: str):
         if playerId in self.players:
@@ -167,7 +166,8 @@ class Table:
                 self.next_player()
 
             del self.players[playerId]
-            self.player_order.remove(playerId)
+            if playerId in self.player_order:
+                self.player_order.remove(playerId)
             if playerId in self.bets:
                 del self.bets[playerId]
                 
@@ -183,6 +183,8 @@ class Table:
     def start_game_possible(self):
         # check if atleast 2 players are 'ready' and no game is in progress
         ready_players = [p for p in self.players.values() if p.status == "ready"]
+        print(f"Ready players: {len(ready_players)}")
+        print(f"Current status: {self.status}")
         if len(ready_players) >= 2 and (self.status == "waiting" or self.status == "complete"):
             return True
         return False
@@ -209,16 +211,15 @@ class Table:
         self.last_raiser = None
         
         for player in self.players.values():
-            player.cards = []
-            player.folded = False
-            player.all_in = False
+            player.reset()
             
         for playerId in self.player_order:
             self.bets[playerId] = 0
 
     def start_game(self):
         self.reset_game()
-
+        self.player_order = [p_id for p_id in self.players if self.players[p_id].status == "ready" or self.players[p_id].status == "playing"]
+        self.bets = {p_id: 0 for p_id in self.player_order}
         # update player status to playing
         for playerId in self.player_order:
             if self.players[playerId].status == "ready":
@@ -242,6 +243,7 @@ class Table:
         
         # Set last_raiser to big blind position initially
         self.last_raiser = self.player_order[bb_pos]
+        self.status = "playing"
 
     def post_blinds(self):
         if len(self.player_order) < 2:
@@ -279,16 +281,13 @@ class Table:
             
         # Find next player who hasn't folded or gone all-in
         for _ in range(len(self.player_order)):
-            print(self.current_player_idx, self.player_order)
             self.current_player_idx = (self.current_player_idx + 1) % len(self.player_order)
             next_player_id = self.player_order[self.current_player_idx]
             player = self.players[next_player_id]
-            print(f"Next player: {next_player_id}, folded: {player.folded}, all_in: {player.all_in}")
             
             if not player.folded and not player.all_in:
                 self.currentTurn = next_player_id
                 return
-            print('all folded')
                 
         # If we get here, all players are either folded or all-in
         self.conclude_round()
@@ -318,8 +317,8 @@ class Table:
             if self.last_raiser and self.currentTurn == self.last_raiser:
                 return True
                 
-        # All active players have matched the current bet
-        return True
+        # All active players have matched the current bet TODO ???
+        return False
 
     def conclude_round(self):
         # Move all bets to the pot
@@ -339,8 +338,7 @@ class Table:
             winner_id = active_players[0]
             winner = self.players[winner_id]
             winner.stack += self.pot
-            self.pot = 0
-            self.status = "complete"
+            self.game_ended()
             return
             
         # Deal community cards based on the round
@@ -356,16 +354,6 @@ class Table:
         # If we've completed the river (round 3), evaluate hands and determine winner
         if self.round > 3:
             self.evaluate_hands()
-            for player in self.players.values():
-                if player.status == "playing":
-                    player.status = "ready"
-                if player.stack == 0:
-                    player.status = "spectating"
-            return
-            
-        # Otherwise, start next betting round
-        # First active player after dealer acts first
-        self.next_player()
 
     def evaluate_hands(self):
         active_players = self.get_active_players()
@@ -404,11 +392,9 @@ class Table:
             if remainder > 0 and winners:
                 self.players[winners[0]].stack += remainder
 
-        self.pot = 0
-        self.status = "complete"
+        self.game_ended()
 
         # TODO : Handle ties and side pots if necessary
-        # TODO : ready check before resetting the game - done from cloud function ??
 
     def to_dict(self):
         return {
@@ -444,6 +430,9 @@ class Table:
             raise ValueError(f"Player {playerId} cannot act (folded or all-in).")
 
         if action == "bet" or action == "raise":
+            if amount <= 0:
+                raise ValueError("Bet/raise amount must be greater than 0.")
+
             # Convert bet to raise if there's already a bet
             if self.current_bet > 0:
                 action = "raise"
@@ -460,10 +449,15 @@ class Table:
                 if player.stack == 0:
                     player.all_in = True
                 self.bets[playerId] = bet_amount
+                self.last_raiser = playerId
                 self.current_bet = bet_amount
                 self.minimum_raise = bet_amount
 
+                # Update last action
+                self.last_action = f"{player.name} {action} {bet_amount}"  # Action message format like "John raised 50"
+
             else:  # raise
+                print(f"Current bet: {self.current_bet}, Player bet: {self.bets[playerId]}")
                 # Raise must be at least the current bet plus the minimum raise
                 minimum_total = self.current_bet + self.minimum_raise
                 if amount < minimum_total:
@@ -471,27 +465,29 @@ class Table:
 
                 # Calculate how much more the player needs to add
                 to_call = self.current_bet - self.bets[playerId]
-                raise_amount = amount - self.current_bet
+                to_raise = amount
+                print(f"To call: {to_call}, To raise: {to_raise}")
 
                 # Cannot raise more than you have
-                total_amount = min(to_call + raise_amount, player.stack)
-                bet_amount = min(to_call + raise_amount, player.stack + self.bets[playerId])
+                total_amount = min(to_call + to_raise, player.stack)
+                print(f"Total amount: {total_amount}")
+                new_bet = self.bets[playerId] + total_amount
+                print(f"New bet: {new_bet}")
+                if new_bet >= self.current_bet:
+                    self.current_bet = new_bet
+                    self.minimum_raise = total_amount - to_call
+                    self.last_raiser = playerId
+                print(f"Current bet after raise: {self.current_bet}, Minimum raise: {self.minimum_raise}")
                 player.stack -= total_amount
-                self.bets[playerId] += total_amount
+                self.bets[playerId] = new_bet
 
-                # If player doesn't have enough to complete the raise, they go all-in
-                if total_amount < to_call + raise_amount:
+                # If player has no stack left, they go all-in
+                if player.stack == 0:
                     player.all_in = True
-                if total_amount >= self.current_bet:
-                    # Set the new current bet and minimum raise
-                    self.current_bet = bet_amount
-                    self.minimum_raise = bet_amount
 
-            # Player who raises becomes the last raiser
-            self.last_raiser = playerId
-
-            # Update last action
-            self.last_action = f"{player.name} {action} {amount}"  # Action message format like "John raised 50"
+                # Update last action
+                self.last_action = f"{player.name} {action} {total_amount}"  # Action message format like "John raised 50"
+            print(self.bets)
 
         elif action == "fold":
             player.folded = True
@@ -522,11 +518,18 @@ class Table:
             raise ValueError(f"Unknown action: {action}")
 
         # Check if the round is complete after this action
+        self.next_player()
         if self.check_round_complete():
             self.conclude_round()
-        else:
-            # Move to the next player
-            self.next_player()
 
         return True
+    
+    def game_ended(self):
+        '''Call when game is ended'''
+        self.status = "complete"
+        for player in self.players.values():
+            if player.status == "playing":
+                player.status = "ready"
+            if player.stack == 0:
+                player.status = "spectating"
 
