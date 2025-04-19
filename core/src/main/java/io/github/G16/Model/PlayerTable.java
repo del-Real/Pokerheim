@@ -22,7 +22,7 @@ public class PlayerTable implements Subject{
         this.playerId = playerId;
     }
 
-    public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, ArrayList<Card> playerHand, int stack, String currentPlayer, String lastAction){
+    public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, String currentPlayer, String lastAction){
         boolean different = false;
 
         // Compare each field and update only if there's a change
@@ -41,16 +41,6 @@ public class PlayerTable implements Subject{
             different = true;
         }
 
-        if (this.playerHand == null || !this.playerHand.equals(playerHand)) {
-            this.playerHand = playerHand;
-            different = true;
-        }
-
-        if (this.stack != stack) {
-            this.stack = stack;
-            different = true;
-        }
-
         if (this.currentPlayer == null || !this.currentPlayer.equals(currentPlayer)) {
             this.currentPlayer = currentPlayer;
             different = true;
@@ -64,6 +54,25 @@ public class PlayerTable implements Subject{
         // If any field was different, notify observers
         if (different) {
             System.out.println("Update, last action now: "+this.lastAction);
+            notifyObservers();
+        }
+    }
+
+    public void updatePlayer(ArrayList<Card> playerHand, int stack){
+        boolean different=false;
+
+        if (this.playerHand == null || !this.playerHand.equals(playerHand)) {
+            this.playerHand = playerHand;
+            different = true;
+        }
+
+        if (this.stack != stack) {
+            this.stack = stack;
+            different = true;
+        }
+
+        if (different) {
+            System.out.println("Update for player");
             notifyObservers();
         }
     }

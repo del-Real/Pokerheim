@@ -71,13 +71,14 @@ public class GameScreen extends ScreenState implements Observer {
         callLogic();
         raiseLogic();
         foldLogic();
+        exitLogic();
 
 
         Window stackWindow = new Window("", skin);
         stackWindow.setPosition((float)(Main.SCREEN_WIDTH*0.1),(float)(Main.SCREEN_HEIGHT*0.8));
         stackWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
-        stackLabel = new Label("Chips: 0",skin);
+        stackLabel = new Label("Stack: 0",skin);
         stackLabel.setAlignment(Align.center);
 
         stackWindow.add(stackLabel).expand().fill().center();
@@ -95,6 +96,71 @@ public class GameScreen extends ScreenState implements Observer {
 
         stage.addActor(potWindow);
 
+
+    }
+
+    private void exitLogic(){
+        TextButton exitButton = new TextButton("X", skin);
+        exitButton.setPosition((float) (0), (float) (Main.SCREEN_HEIGHT*0.9));
+        exitButton.setSize((float) (Main.SCREEN_WIDTH*0.1), (float) (Main.SCREEN_HEIGHT*0.1));
+
+        stage.addActor(exitButton);
+
+        final Window exitWindow = new Window("", skin);
+        exitWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        exitWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
+        exitWindow.setVisible(false);
+
+
+        Label exitLabel = new Label("Leave?", skin);
+        exitLabel.setAlignment(Align.center);
+        exitWindow.add(exitLabel).expandX().fillX().pad(10);
+
+
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
+        TextButton confirmExitButton = new TextButton("CONFIRM", skin);
+        confirmExitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (PlayerController.getInstance().getCurrentTable() == null || PlayerController.getInstance().getCurrentTable().getPlayerHand() == null){
+                    InputManager.getInstance(null,null).changeScreen(new MainMenuScreen(InputManager.getInstance(null,null)));
+                } else {
+                    PlayerController.getInstance().leaveTable(PlayerController.getInstance().getCurrentTable().getPlayerId(),exitWindow,errorLabel);
+                }
+            }
+        });
+
+        TextButton backButton = new TextButton("BACK", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                exitWindow.setVisible(false);
+                currentOpenWindow=null;
+            }
+        });
+
+
+        buttonTable.add(confirmExitButton).expandX().fillX();
+        buttonTable.add(backButton).expand().fillX();
+
+        exitWindow.row();
+        exitWindow.add(buttonTable).expandX().fillX();
+
+        stage.addActor(exitWindow);
+
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
+                exitWindow.setVisible(true);
+                currentOpenWindow=exitWindow;
+            }
+        });
     }
     private void betLogic(){
 
@@ -266,7 +332,7 @@ public class GameScreen extends ScreenState implements Observer {
                 PlayerController.getInstance().performAction(
                         PlayerController.getInstance().getCurrentTable().getPlayerId(),
                         "call",
-                        0,
+                        50,
                         callWindow,
                         errorLabel
                 );
@@ -447,48 +513,76 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
+    private final ArrayList<Image> communityCardImages = new ArrayList<>();
+    private final ArrayList<Image> playerHandImages = new ArrayList<>();
+
     @Override
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");
-        potLabel.setText("Pot: "+playerTable.getPot());
-        stackLabel.setText("Stack: "+playerTable.getStack());
+
+        int oldPot = Integer.parseInt(potLabel.getText().toString().replace("Pot: ", ""));
+        int oldStack = Integer.parseInt(stackLabel.getText().toString().replace("Stack: ", ""));
+        int newPot = playerTable.getPot();
+        int newStack = playerTable.getStack();
+        System.out.println(oldPot + " " + oldStack + " " + newPot + " " + newStack);
+
+        if (oldStack < newStack && !lastActionLabel.getText().toString().isEmpty()) {
+            lastActionLabel.setText("You won, please wait for a new round");
+        } else if (oldPot > 0 && newPot == 0) {
+            lastActionLabel.setText("You lost, please wait for a new round");
+        } else {
+            if (playerTable.getLastAction() == null) {
+                lastActionLabel.setText("");
+            } else {
+                lastActionLabel.setText(playerTable.getLastAction());
+            }
+        }
+
+
+        potLabel.setText("Pot: " + newPot);
+        stackLabel.setText("Stack: " + newStack);
         errorLabel.setText("");
+
         if (playerTable.getCurrentTurn() == null){
             turnLabel.setText("Game is starting, please wait");
         } else if (playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
             turnLabel.setText("Your turn");
         } else {
-            turnLabel.setText(playerTable.getCurrentPlayer()+"'s turn");
+            turnLabel.setText(playerTable.getCurrentPlayer() + "'s turn");
         }
-        if (playerTable.getLastAction() == null) {
-            lastActionLabel.setText("");
-        } else {
-            lastActionLabel.setText(playerTable.getLastAction());
+
+        for (Image img : communityCardImages) {
+            img.remove();
         }
+        communityCardImages.clear();
+
         ArrayList<Card> communityCards = playerTable.getCommunityCards();
-        int i=0;
-        for (Card card: communityCards){
+        int i = 0;
+        for (Card card : communityCards){
             TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
             Image cardImage = new Image(cardDrawable);
             cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
-
             cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
             stage.addActor(cardImage);
+            communityCardImages.add(cardImage);
             i++;
         }
 
+        for (Image img : playerHandImages) {
+            img.remove();
+        }
+        playerHandImages.clear();
+
         ArrayList<Card> playerHand = playerTable.getPlayerHand();
-        i=0;
-        for (Card card: playerHand){
+        i = 0;
+        for (Card card : playerHand){
             TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
             Image cardImage = new Image(cardDrawable);
             cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
-
             cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
             stage.addActor(cardImage);
+            playerHandImages.add(cardImage);
             i++;
         }
-
-
     }
 }

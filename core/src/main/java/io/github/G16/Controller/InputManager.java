@@ -10,15 +10,15 @@ import io.github.G16.View.ViewManager;
 
 public class InputManager implements InputProcessor {
     private final ViewManager viewManager;
-    private final FirestoreTableListener firestoreListener;
+    private final FirestoreListener firestoreListener;
     private InputProcessor currentInputProcessor;
     private static InputManager instance;
 
-    private InputManager(ViewManager viewManager, FirestoreTableListener firestoreListener) {
+    private InputManager(ViewManager viewManager, FirestoreListener firestoreListener) {
         this.viewManager = viewManager;
         this.firestoreListener = firestoreListener;
     }
-    public static InputManager getInstance(ViewManager viewManager, FirestoreTableListener firestoreListener) {
+    public static InputManager getInstance(ViewManager viewManager, FirestoreListener firestoreListener) {
         if (instance == null) {
             instance = new InputManager(viewManager, firestoreListener);
         }
@@ -32,8 +32,9 @@ public class InputManager implements InputProcessor {
         viewManager.setScreen(screen);
     }
 
-    public void listenForTableUpdates(PlayerTable playerTable){
+    public void listenForUpdates(PlayerTable playerTable){
         firestoreListener.listenForTableUpdates(playerTable);
+        firestoreListener.listenForPlayerUpdates(playerTable);
     }
 
     // Idk what these do

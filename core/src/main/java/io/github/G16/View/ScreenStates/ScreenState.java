@@ -20,12 +20,17 @@ public abstract class ScreenState implements Screen {
         skin = new Skin(Gdx.files.internal("uiskin/skin/terra-mother-ui.json"));
     }
     public void show() {
-        stage = new Stage();
+        if (stage == null){
+            stage = new Stage();
+        }
         inputManager.setInputProcessor(stage);
     }
 
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (stage == null){
+            stage = new Stage();
+        }
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }

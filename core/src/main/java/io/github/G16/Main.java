@@ -3,7 +3,7 @@ package io.github.G16;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
-import io.github.G16.Controller.FirestoreTableListener;
+import io.github.G16.Controller.FirestoreListener;
 import io.github.G16.Controller.InputManager;
 import io.github.G16.View.ScreenStates.LaunchLoadingScreen;
 import io.github.G16.View.ScreenStates.MainMenuScreen;
@@ -16,9 +16,9 @@ public class Main extends Game {
     static public float SCREEN_HEIGHT;
     private ViewManager viewManager;
     private InputManager inputManager;
-    private final FirestoreTableListener firestoreListener;
+    private final FirestoreListener firestoreListener;
 
-    public Main(FirestoreTableListener firestoreListener){
+    public Main(FirestoreListener firestoreListener){
         this.firestoreListener = firestoreListener;
     }
     @Override

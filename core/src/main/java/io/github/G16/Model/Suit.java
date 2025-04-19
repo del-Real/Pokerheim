@@ -1,7 +1,7 @@
 package io.github.G16.Model;
 
 public enum Suit {
-    HEARTS("h"), DIAMONDS("d"), CLUBS("c"), SPADES("s");
+    HEARTS("h"), CLUBS("c"), DIAMONDS("d"), SPADES("s");
 
     private final String shortCode;
 
