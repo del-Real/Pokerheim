@@ -125,10 +125,10 @@ public class GameScreen extends ScreenState implements Observer {
         confirmExitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (PlayerController.getInstance().getCurrentTable() != null){
-                    PlayerController.getInstance().leaveTable(PlayerController.getInstance().getCurrentTable().getPlayerId(),exitWindow,errorLabel);
-                } else {
+                if (PlayerController.getInstance().getCurrentTable() == null || PlayerController.getInstance().getCurrentTable().getPlayerHand() == null){
                     InputManager.getInstance(null,null).changeScreen(new MainMenuScreen(InputManager.getInstance(null,null)));
+                } else {
+                    PlayerController.getInstance().leaveTable(PlayerController.getInstance().getCurrentTable().getPlayerId(),exitWindow,errorLabel);
                 }
             }
         });
@@ -332,7 +332,7 @@ public class GameScreen extends ScreenState implements Observer {
                 PlayerController.getInstance().performAction(
                         PlayerController.getInstance().getCurrentTable().getPlayerId(),
                         "call",
-                        0,
+                        50,
                         callWindow,
                         errorLabel
                 );
@@ -513,12 +513,16 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
+    private final ArrayList<Image> communityCardImages = new ArrayList<>();
+    private final ArrayList<Image> playerHandImages = new ArrayList<>();
+
     @Override
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");
         potLabel.setText("Pot: "+playerTable.getPot());
         stackLabel.setText("Stack: "+playerTable.getStack());
         errorLabel.setText("");
+
         if (playerTable.getCurrentTurn() == null){
             turnLabel.setText("Game is starting, please wait");
         } else if (playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
@@ -526,35 +530,45 @@ public class GameScreen extends ScreenState implements Observer {
         } else {
             turnLabel.setText(playerTable.getCurrentPlayer()+"'s turn");
         }
+
         if (playerTable.getLastAction() == null) {
             lastActionLabel.setText("");
         } else {
             lastActionLabel.setText(playerTable.getLastAction());
         }
+
+        for (Image img : communityCardImages) {
+            img.remove();
+        }
+        communityCardImages.clear();
+
         ArrayList<Card> communityCards = playerTable.getCommunityCards();
-        int i=0;
-        for (Card card: communityCards){
+        int i = 0;
+        for (Card card : communityCards){
             TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
             Image cardImage = new Image(cardDrawable);
             cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.125+i*0.15)), (float) (Main.SCREEN_HEIGHT * 0.4));
-
             cardImage.setSize(cardImage.getWidth() * 2, cardImage.getHeight() * 2);
             stage.addActor(cardImage);
+            communityCardImages.add(cardImage);
             i++;
         }
 
+        for (Image img : playerHandImages) {
+            img.remove();
+        }
+        playerHandImages.clear();
+
         ArrayList<Card> playerHand = playerTable.getPlayerHand();
-        i=0;
-        for (Card card: playerHand){
+        i = 0;
+        for (Card card : playerHand){
             TextureRegionDrawable cardDrawable = new TextureRegionDrawable(new TextureRegion(card.getTextureRegion()));
             Image cardImage = new Image(cardDrawable);
             cardImage.setPosition((float) (Main.SCREEN_WIDTH * (0.5+i*.25)), (float) (Main.SCREEN_HEIGHT * 0.25));
-
             cardImage.setSize(cardImage.getWidth() * 3, cardImage.getHeight() * 3);
             stage.addActor(cardImage);
+            playerHandImages.add(cardImage);
             i++;
         }
-
-
     }
 }
