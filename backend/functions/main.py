@@ -259,31 +259,31 @@ def scheduled_cleanup():
     clean_old_data(3600)
     return https_fn.Response("Scheduled cleanup done", status=200)
 
-def clean_old_data(ttl:int = 3600):
-    """Delete empty tables and players that have not been active for 1 hour"""
+def clean_old_data(ttl: int = 3600):
+    """Delete empty tables and players that have not been active for the specified TTL"""
     now = datetime.datetime.now(datetime.timezone.utc)
-    # Get all players
-    players = players_ref.stream()
-    for player in players:
+
+    # Batch delete inactive players
+    inactive_players = []
+    for player in players_ref.stream():
         player_data = player.to_dict()
-        last_action = player_data["last_action"]
-        last_action = last_action.replace(tzinfo=datetime.timezone.utc)
-        # Check if the player has not been active for 1 hour
+        last_action = player_data["last_action"].replace(tzinfo=datetime.timezone.utc)
         if (now - last_action).total_seconds() > ttl:
-            # Delete the player from table
-            delete_player(player.id)
-    # Delete all empty tables
+            inactive_players.append(player.id)
+
+    for player_id in inactive_players:
+        delete_player(player_id)
+
+    # Batch delete empty tables
+    empty_tables = []
     for table in tables_ref.stream():
         table_id = table.id
         local_players_ref = tables_ref.document(table_id).collection("players")
-        players = local_players_ref.stream()
-        player_count = sum(1 for _ in players)
-        if player_count == 0:
-            # Delete the table document
-            delete_table(tables_ref.document(table_id))
-            print(f"Deleted table {table.id}")
-        else:
-            print(f"Table {table.id} has players, not deleting")
+        if not any(local_players_ref.stream()):  # Check if the table has no players
+            empty_tables.append(table_id)
+
+    for table_id in empty_tables:
+        delete_table(tables_ref.document(table_id))
 
 @https_fn.on_request()
 def startGame(request: https_fn.Request):
@@ -300,13 +300,10 @@ def startGame(request: https_fn.Request):
     table = read_table_from_firestore(tableId)
     # Check if the game has already started
     if table.start_game_possible():
-        print("Starting game")
         table.reset_game()
         table.start_game()
         # Update the table document
         write_table_to_firestore(table)
-    else:
-        print("Cannot start game")
 
     return https_fn.Response("Game started", status=200)
 
@@ -314,7 +311,6 @@ def delete_collection(coll_ref, batch_size=10):
     docs = coll_ref.limit(batch_size).stream()
     deleted = 0
     for doc in docs:
-        print(f"Deleting document: {doc.id}")
         doc.reference.delete()
         deleted += 1
     if deleted >= batch_size:

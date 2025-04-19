@@ -183,8 +183,6 @@ class Table:
     def start_game_possible(self):
         # check if atleast 2 players are 'ready' and no game is in progress
         ready_players = [p for p in self.players.values() if p.status == "ready"]
-        print(f"Ready players: {len(ready_players)}")
-        print(f"Current status: {self.status}")
         if len(ready_players) >= 2 and (self.status == "waiting" or self.status == "complete"):
             return True
         return False
@@ -457,7 +455,6 @@ class Table:
                 self.last_action = f"{player.name} {action} {bet_amount}"  # Action message format like "John raised 50"
 
             else:  # raise
-                print(f"Current bet: {self.current_bet}, Player bet: {self.bets[playerId]}")
                 # Raise must be at least the current bet plus the minimum raise
                 minimum_total = self.current_bet + self.minimum_raise
                 if amount < minimum_total:
@@ -466,18 +463,14 @@ class Table:
                 # Calculate how much more the player needs to add
                 to_call = self.current_bet - self.bets[playerId]
                 to_raise = amount
-                print(f"To call: {to_call}, To raise: {to_raise}")
 
                 # Cannot raise more than you have
                 total_amount = min(to_call + to_raise, player.stack)
-                print(f"Total amount: {total_amount}")
                 new_bet = self.bets[playerId] + total_amount
-                print(f"New bet: {new_bet}")
                 if new_bet >= self.current_bet:
                     self.current_bet = new_bet
                     self.minimum_raise = total_amount - to_call
                     self.last_raiser = playerId
-                print(f"Current bet after raise: {self.current_bet}, Minimum raise: {self.minimum_raise}")
                 player.stack -= total_amount
                 self.bets[playerId] = new_bet
 
@@ -487,7 +480,6 @@ class Table:
 
                 # Update last action
                 self.last_action = f"{player.name} {action} {total_amount}"  # Action message format like "John raised 50"
-            print(self.bets)
 
         elif action == "fold":
             player.folded = True
