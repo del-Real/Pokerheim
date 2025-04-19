@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Timer;
 import io.github.G16.Model.PlayerTable;
 import io.github.G16.View.ScreenStates.GameScreen;
+import io.github.G16.View.ScreenStates.MainMenuScreen;
 
 public class PlayerController {
     private static final String BASE_URL = "https://us-central1-pokergame-007.cloudfunctions.net";
@@ -211,6 +212,7 @@ public class PlayerController {
             @Override
             public void failed(Throwable t) {
                 button.setDisabled(false);
+                button.setText("TRY AGAIN");
             }
 
             @Override
@@ -219,4 +221,57 @@ public class PlayerController {
             }
         });
     }
+
+    public void leaveTable(String playerId, Window infoWindow, Label errorLabel) {
+        String url = BASE_URL + "/leaveTable?playerId=" + playerId;
+
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
+        request.setUrl(url);
+        request.setTimeOut(5000);
+
+        infoWindow.setTouchable(null);
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+
+                infoWindow.setVisible(false);
+                infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
+
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                System.out.println("LeaveTable - Status: " + statusCode);
+                System.out.println("LeaveTable - Response: " + httpResponse.getResultAsString());
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    currentTable = null;
+                    errorLabel.setText("Leaving...");
+
+                    Timer.schedule(new Timer.Task() {
+                        @Override
+                        public void run() {
+                            MainMenuScreen mainMenuScreen = new MainMenuScreen(InputManager.getInstance(null, null));
+                            InputManager.getInstance(null, null).changeScreen(mainMenuScreen);
+                        }
+                    }, 1f);
+                } else {
+                    errorLabel.setText("Unable to leave the table.");
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                errorLabel.setText("Network error. Try again.");
+                infoWindow.setVisible(false);
+                infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
+            }
+
+            @Override
+            public void cancelled() {
+                errorLabel.setText("Request cancelled.");
+                infoWindow.setVisible(false);
+                infoWindow.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
+            }
+        });
+    }
+
 }

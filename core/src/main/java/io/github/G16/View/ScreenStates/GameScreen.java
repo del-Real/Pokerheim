@@ -71,6 +71,7 @@ public class GameScreen extends ScreenState implements Observer {
         callLogic();
         raiseLogic();
         foldLogic();
+        exitLogic();
 
 
         Window stackWindow = new Window("", skin);
@@ -95,6 +96,71 @@ public class GameScreen extends ScreenState implements Observer {
 
         stage.addActor(potWindow);
 
+
+    }
+
+    private void exitLogic(){
+        TextButton exitButton = new TextButton("X", skin);
+        exitButton.setPosition((float) (0), (float) (Main.SCREEN_HEIGHT*0.9));
+        exitButton.setSize((float) (Main.SCREEN_WIDTH*0.1), (float) (Main.SCREEN_HEIGHT*0.1));
+
+        stage.addActor(exitButton);
+
+        final Window exitWindow = new Window("", skin);
+        exitWindow.setSize((float) (Main.SCREEN_WIDTH * 0.7), (float) (Main.SCREEN_HEIGHT * 0.2));
+        exitWindow.setPosition((float) (Main.SCREEN_WIDTH * 0.15), (float) (Main.SCREEN_HEIGHT * 0.5));
+        exitWindow.setVisible(false);
+
+
+        Label exitLabel = new Label("Leave?", skin);
+        exitLabel.setAlignment(Align.center);
+        exitWindow.add(exitLabel).expandX().fillX().pad(10);
+
+
+        Table buttonTable = new Table();
+        buttonTable.top().padTop(10);
+        buttonTable.defaults().width(300).height(100).pad(5);
+
+        TextButton confirmExitButton = new TextButton("CONFIRM", skin);
+        confirmExitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (PlayerController.getInstance().getCurrentTable() != null){
+                    PlayerController.getInstance().leaveTable(PlayerController.getInstance().getCurrentTable().getPlayerId(),exitWindow,errorLabel);
+                } else {
+                    InputManager.getInstance(null,null).changeScreen(new MainMenuScreen(InputManager.getInstance(null,null)));
+                }
+            }
+        });
+
+        TextButton backButton = new TextButton("BACK", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                exitWindow.setVisible(false);
+                currentOpenWindow=null;
+            }
+        });
+
+
+        buttonTable.add(confirmExitButton).expandX().fillX();
+        buttonTable.add(backButton).expand().fillX();
+
+        exitWindow.row();
+        exitWindow.add(buttonTable).expandX().fillX();
+
+        stage.addActor(exitWindow);
+
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                if (currentOpenWindow!=null){
+                    currentOpenWindow.setVisible(false);
+                }
+                exitWindow.setVisible(true);
+                currentOpenWindow=exitWindow;
+            }
+        });
     }
     private void betLogic(){
 

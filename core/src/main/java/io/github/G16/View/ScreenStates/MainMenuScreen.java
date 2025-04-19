@@ -22,6 +22,7 @@ public class MainMenuScreen extends ScreenState {
     @Override
     public void show() {
         super.show();
+        System.out.println("Main menu Show called");
         Gdx.gl.glClearColor(0.5f, 0.9f, 0.7f, 1f);
 
 
