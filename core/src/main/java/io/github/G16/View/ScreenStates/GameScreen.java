@@ -78,7 +78,7 @@ public class GameScreen extends ScreenState implements Observer {
         stackWindow.setPosition((float)(Main.SCREEN_WIDTH*0.1),(float)(Main.SCREEN_HEIGHT*0.8));
         stackWindow.setSize((float)(Main.SCREEN_WIDTH*0.3),(float)(Main.SCREEN_HEIGHT*0.075));
         // The label is so that its easier to center
-        stackLabel = new Label("Chips: 0",skin);
+        stackLabel = new Label("Stack: 0",skin);
         stackLabel.setAlignment(Align.center);
 
         stackWindow.add(stackLabel).expand().fill().center();
@@ -519,8 +519,28 @@ public class GameScreen extends ScreenState implements Observer {
     @Override
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");
-        potLabel.setText("Pot: "+playerTable.getPot());
-        stackLabel.setText("Stack: "+playerTable.getStack());
+
+        int oldPot = Integer.parseInt(potLabel.getText().toString().replace("Pot: ", ""));
+        int oldStack = Integer.parseInt(stackLabel.getText().toString().replace("Stack: ", ""));
+        int newPot = playerTable.getPot();
+        int newStack = playerTable.getStack();
+        System.out.println(oldPot + " " + oldStack + " " + newPot + " " + newStack);
+
+        if (oldStack < newStack && !lastActionLabel.getText().toString().isEmpty()) {
+            lastActionLabel.setText("You won, please wait for a new round");
+        } else if (oldPot > 0 && newPot == 0) {
+            lastActionLabel.setText("You lost, please wait for a new round");
+        } else {
+            if (playerTable.getLastAction() == null) {
+                lastActionLabel.setText("");
+            } else {
+                lastActionLabel.setText(playerTable.getLastAction());
+            }
+        }
+
+
+        potLabel.setText("Pot: " + newPot);
+        stackLabel.setText("Stack: " + newStack);
         errorLabel.setText("");
 
         if (playerTable.getCurrentTurn() == null){
@@ -528,13 +548,7 @@ public class GameScreen extends ScreenState implements Observer {
         } else if (playerTable.getCurrentTurn().equals(playerTable.getPlayerId())){
             turnLabel.setText("Your turn");
         } else {
-            turnLabel.setText(playerTable.getCurrentPlayer()+"'s turn");
-        }
-
-        if (playerTable.getLastAction() == null) {
-            lastActionLabel.setText("");
-        } else {
-            lastActionLabel.setText(playerTable.getLastAction());
+            turnLabel.setText(playerTable.getCurrentPlayer() + "'s turn");
         }
 
         for (Image img : communityCardImages) {
