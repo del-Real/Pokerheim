@@ -46,7 +46,7 @@ public class PlayerController {
                 if (statusCode == HttpStatus.SC_OK) {
                     String responseText = httpResponse.getResultAsString();
                     currentTable = new PlayerTable(code, extractPlayerId(responseText));
-                    InputManager.getInstance(null, null).listenForTableUpdates(currentTable);
+                    InputManager.getInstance(null, null).listenForUpdates(currentTable);
 
                     if (codeField != null) codeField.setText("Joined lobby successfully");
                     if (errorLabel != null) errorLabel.setText("");
