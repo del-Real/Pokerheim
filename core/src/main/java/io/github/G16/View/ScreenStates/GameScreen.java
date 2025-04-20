@@ -130,6 +130,7 @@ public class GameScreen extends ScreenState implements Observer {
                 } else {
                     PlayerController.getInstance().leaveTable(PlayerController.getInstance().getCurrentTable().getPlayerId(),exitWindow,errorLabel);
                 }
+                InputManager.getInstance(null,null).stopListening();
             }
         });
 

@@ -26,7 +26,7 @@ public class MainMenuScreen extends ScreenState {
         Gdx.gl.glClearColor(0.5f, 0.9f, 0.7f, 1f);
 
 
-        Label creditLabel = new Label("UI Skin by Raymond 'Raeleus' Buckley (Terra Mother UI)",skin);
+        Label creditLabel = new Label("UI Skin by Raymond 'Raeleus' Buckley (Terra Mother UI)\nCards sprites from Balatro",skin);
         creditLabel.setPosition((float) (Main.SCREEN_WIDTH*0.05), (float) (Main.SCREEN_HEIGHT*0.025));
         creditLabel.setAlignment(Align.center);
         creditLabel.setWrap(true);

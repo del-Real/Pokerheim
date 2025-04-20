@@ -37,6 +37,10 @@ public class InputManager implements InputProcessor {
         firestoreListener.listenForPlayerUpdates(playerTable);
     }
 
+    public void stopListening(){
+        firestoreListener.stopListening();
+    }
+
     // Idk what these do
 
     @Override
