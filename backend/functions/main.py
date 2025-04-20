@@ -254,7 +254,7 @@ def cleanup(request: https_fn.Request):
     return https_fn.Response("Cleanup done", status=200)
 
 @scheduler_fn.on_schedule(schedule="every 1 hours")
-def scheduled_cleanup():
+def scheduled_cleanup(event):
     """Scheduled function to clean up old data"""
     clean_old_data(3600)
     return https_fn.Response("Scheduled cleanup done", status=200)

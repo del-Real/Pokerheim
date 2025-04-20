@@ -70,12 +70,14 @@ class Player:
         self.all_in = False
         # STATUS: "playing", "spectating", "ready"
         self.status = "spectating"
+        self.had_action = False
 
     def reset(self):
         self.cards = []
         self.folded = False
         self.all_in = self.stack == 0
         self.last_action = None
+        self.had_action = False
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -85,6 +87,7 @@ class Player:
         player.folded = data.get("folded", False)
         player.all_in = data.get("all_in", False)
         player.status = data.get("status", "spectating")
+        player.had_action = data.get("had_action", False)
         return player
 
     def to_dict(self):
@@ -97,6 +100,7 @@ class Player:
             "folded": self.folded,
             "all_in": self.all_in,
             "status": self.status,
+            "had_action": self.had_action,
         }
 
     def __str__(self):
@@ -275,7 +279,7 @@ class Table:
         active_players = self.get_active_players()
         if len(active_players) <= 1:
             self.conclude_round()
-            return
+            return False
             
         # Find next player who hasn't folded or gone all-in
         for _ in range(len(self.player_order)):
@@ -285,38 +289,38 @@ class Table:
             
             if not player.folded and not player.all_in:
                 self.currentTurn = next_player_id
-                return
-                
+                return True
+            
         # If we get here, all players are either folded or all-in
-        self.conclude_round()
+        return True
+        
 
-    def get_active_players(self):
-        return [p_id for p_id in self.player_order if not self.players[p_id].folded]
+    def get_active_players(self, include_all_in=True):
+        """Get a list of active players (not folded or all-in)"""
+        if include_all_in:
+            return [p_id for p_id in self.player_order if not self.players[p_id].folded]
+        return [p_id for p_id in self.player_order if not self.players[p_id].folded and not self.players[p_id].all_in]
 
-    def check_round_complete(self):
+    def check_round_complete(self, action=None):
         """Check if the current betting round is complete"""
-        # If there's only one active player, the round is complete
-        active_players = self.get_active_players()
+        active_players = self.get_active_players(include_all_in=True)
         if len(active_players) <= 1:
             return True
-            
-        # Check if all active players have matched the current bet or gone all-in
-        for p_id in active_players:
-            player = self.players[p_id]
-            # Skip players who are all-in
-            if player.all_in:
+        
+        # If all players have either folded or gone all-in, the round is complete
+        for player_id in active_players:
+            player = self.players[player_id]
+            if player.folded or player.all_in:
                 continue
-                
-            # If a player hasn't matched the current bet, the round continues
-            if self.bets[p_id] < self.current_bet:
+            
+            # If the player has not acted yet, the round is not complete
+            if not player.had_action:
                 return False
-                
-            # If the last player to act is the current player, and they've matched the bet
-            if self.last_raiser and self.currentTurn == self.last_raiser:
-                return True
-                
-        # All active players have matched the current bet TODO ???
-        return False
+        
+            if self.bets[player_id] < self.current_bet:
+                return False
+            
+        return True
 
     def conclude_round(self):
         # Move all bets to the pot
@@ -327,9 +331,11 @@ class Table:
         # Reset current bet
         self.current_bet = 0
         self.minimum_raise = self.big_blind
-        self.last_raiser = None
         
-        active_players = self.get_active_players()
+        active_players = self.get_active_players(include_all_in=True)
+        for player_id in active_players:
+            player = self.players[player_id]
+            player.had_action = False
         
         # If there's only one player left, they win
         if len(active_players) == 1:
@@ -352,6 +358,10 @@ class Table:
         # If we've completed the river (round 3), evaluate hands and determine winner
         if self.round > 3:
             self.evaluate_hands()
+            return
+
+        if len(self.get_active_players(include_all_in=False)) <= 1 and self.check_round_complete():
+            self.conclude_round()
 
     def evaluate_hands(self):
         active_players = self.get_active_players()
@@ -449,7 +459,6 @@ class Table:
                 self.bets[playerId] = bet_amount
                 self.last_raiser = playerId
                 self.current_bet = bet_amount
-                self.minimum_raise = bet_amount
 
                 # Update last action
                 self.last_action = f"{player.name} {action} {bet_amount}"  # Action message format like "John raised 50"
@@ -469,8 +478,7 @@ class Table:
                 new_bet = self.bets[playerId] + total_amount
                 if new_bet >= self.current_bet:
                     self.current_bet = new_bet
-                    self.minimum_raise = total_amount - to_call
-                    self.last_raiser = playerId
+                    self.last_raise = playerId
                 player.stack -= total_amount
                 self.bets[playerId] = new_bet
 
@@ -508,12 +516,15 @@ class Table:
 
         else:
             raise ValueError(f"Unknown action: {action}")
+        
+        # Mark the player as having acted
+        player.had_action = True
 
         # Check if the round is complete after this action
-        self.next_player()
-        if self.check_round_complete():
+        rc = self.check_round_complete(action)
+        next_player_exists = self.next_player()
+        if rc and next_player_exists: # trust the spaghetti monster
             self.conclude_round()
-
         return True
     
     def game_ended(self):
