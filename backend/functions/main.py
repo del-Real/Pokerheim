@@ -100,6 +100,9 @@ def joinTable(req: https_fn.Request) -> https_fn.Response:
         players_doc_ref = players_ref.document(playerId)
         if players_doc_ref.get().exists:
             return https_fn.Response("Player already exists", status=400)
+    # if there are 9 or more players, return an error
+    if len(table.players) >= 9:
+        return https_fn.Response("Table is full", status=400)
     player = Player(name=name, last_action=datetime.datetime.utcnow(), playerId=playerId)
     table.add_player(player)
 
