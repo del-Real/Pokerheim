@@ -37,20 +37,20 @@ public class GameScreen extends ScreenState implements Observer {
     public void show(){
         super.show();
         turnLabel = new Label("Not Your Turn", skin);
-        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.95));
+        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.1), (float) (Main.SCREEN_HEIGHT * 0.95));
         turnLabel.setAlignment(Align.center);
 
         turnLabel.setWrap(true);
-        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.4));
+        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.3));
 
         stage.addActor(turnLabel);
 
         lastActionLabel = new Label("", skin);
-        lastActionLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.55), (float) (Main.SCREEN_HEIGHT * 0.95));
+        lastActionLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.6), (float) (Main.SCREEN_HEIGHT * 0.95));
         lastActionLabel.setAlignment(Align.center);
 
         lastActionLabel.setWrap(true);
-        lastActionLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.4));
+        lastActionLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.3));
 
         stage.addActor(lastActionLabel);
 
@@ -530,7 +530,11 @@ public class GameScreen extends ScreenState implements Observer {
         if (oldStack < newStack && !lastActionLabel.getText().toString().isEmpty()) {
             lastActionLabel.setText("You won, please wait for a new round");
         } else if (oldPot > 0 && newPot == 0) {
-            lastActionLabel.setText("You lost, please wait for a new round");
+            if (newStack == 0){
+                lastActionLabel.setText("Game over, you lost all of your chips");
+            } else {
+                lastActionLabel.setText("You lost, please wait for a new round");
+            }
         } else {
             if (playerTable.getLastAction() == null) {
                 lastActionLabel.setText("");

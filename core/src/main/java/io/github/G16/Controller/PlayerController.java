@@ -33,6 +33,7 @@ public class PlayerController {
     }
 
     public void joinLobby(String code, String name, TextField codeField, TextButton button, Label errorLabel) {
+        InputManager.getInstance(null,null).stopListening();
         String url = BASE_URL + "/joinTable?tableId=table" + code + "&name=" + name;
 
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
@@ -51,7 +52,6 @@ public class PlayerController {
 
                     if (codeField != null) codeField.setText("Joined lobby successfully");
                     if (errorLabel != null) errorLabel.setText("");
-
                     button.clearListeners();
                     button.setText("READY?");
                     button.addListener(new ClickListener() {
@@ -205,6 +205,7 @@ public class PlayerController {
                         }
                     }, 1f);
                 } else {
+                    button.setText("TRY AGAIN");
                     button.setDisabled(false);
                 }
             }
@@ -242,7 +243,7 @@ public class PlayerController {
                 System.out.println("LeaveTable - Status: " + statusCode);
                 System.out.println("LeaveTable - Response: " + httpResponse.getResultAsString());
 
-                if (statusCode == HttpStatus.SC_OK) {
+                if (statusCode == HttpStatus.SC_OK || httpResponse.getResultAsString().equals("Player does not exist")) {
                     currentTable = null;
                     errorLabel.setText("Leaving...");
 
