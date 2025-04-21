@@ -533,18 +533,12 @@ public class GameScreen extends ScreenState implements Observer {
         System.out.println("Got an update");
 
         int oldPot = Integer.parseInt(potLabel.getText().toString().replace("Pot: ", ""));
-        int oldStack = Integer.parseInt(stackLabel.getText().toString().replace("Stack: ", ""));
         int newPot = playerTable.getPot();
         int newStack = playerTable.getStack();
-        System.out.println(oldPot + " " + oldStack + " " + newPot + " " + newStack);
 
-        if (oldStack < newStack && !lastActionLabel.getText().toString().isEmpty()) {
-            lastActionLabel.setText("You won, please wait for a new round");
-        } else if (oldPot > 0 && newPot == 0) {
+        if (oldPot > 0 && newPot == 0) {
             if (newStack == 0){
                 lastActionLabel.setText("Game over, you lost all of your chips");
-            } else {
-                lastActionLabel.setText("You lost, please wait for a new round");
             }
         } else {
             if (playerTable.getLastAction() == null) {
