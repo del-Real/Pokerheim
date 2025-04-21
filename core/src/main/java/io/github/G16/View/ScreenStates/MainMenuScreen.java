@@ -13,12 +13,15 @@ import io.github.G16.Controller.InputManager;
 import io.github.G16.Main;
 
 public class MainMenuScreen extends ScreenState {
+
+    // Main menu screen with main menu stuff
     private Texture logo;
 
     public MainMenuScreen(InputManager inputManager) {
         super(inputManager);
     }
 
+    // Here is all the stuff that's visualized on the screen
     @Override
     public void show() {
         super.show();

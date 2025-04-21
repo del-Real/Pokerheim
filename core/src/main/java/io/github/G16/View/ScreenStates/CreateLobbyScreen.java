@@ -14,11 +14,13 @@ import io.github.G16.Main;
 
 public class CreateLobbyScreen extends ScreenState{
 
+    // Create lobby screen allows to create lobby
     public CreateLobbyScreen(InputManager inputManager) {
         super(inputManager);
 
     }
 
+    // Here is all the stuff that's visualized on the screen
     @Override
     public void show(){
         super.show();
@@ -84,6 +86,8 @@ public class CreateLobbyScreen extends ScreenState{
         generateButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                // When the button is pressed it will send an API request to create a lobby
                 generateButton.setDisabled(true);
                 codeLabel.setText("Generating code");
                 PlayerController.getInstance().createLobby(codeLabel, nameField.getText(), generateButton, errorLabel);

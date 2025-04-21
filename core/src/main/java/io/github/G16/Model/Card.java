@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import io.github.G16.Assets;
 
 public class Card {
+
+    // Card class
     private final Rank rank;
     private final Suit suit;
     private final TextureRegion textureRegion;

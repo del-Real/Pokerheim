@@ -24,15 +24,20 @@ import io.github.G16.View.Observer;
 
 public class GameScreen extends ScreenState implements Observer {
 
+    // This is the screen where the actual "game" happens
     private Label potLabel;
     private Label stackLabel;
     private Label turnLabel;
     private Label lastActionLabel;
     private Window currentOpenWindow=null;
+
+    private final ArrayList<Image> communityCardImages = new ArrayList<>();
+    private final ArrayList<Image> playerHandImages = new ArrayList<>();
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
 
+    // Here is all the stuff that's visualized on the screen
     @Override
     public void show(){
         super.show();
@@ -66,6 +71,7 @@ public class GameScreen extends ScreenState implements Observer {
 
         stage.addActor(errorLabel);
 
+        // This is just so that not everything is in the show method making it easier to look for things
         betLogic();
         checkLogic();
         callLogic();
@@ -98,6 +104,8 @@ public class GameScreen extends ScreenState implements Observer {
 
 
     }
+
+    // Logic to leave the table
 
     private void exitLogic(){
         TextButton exitButton = new TextButton("X", skin);
@@ -163,6 +171,8 @@ public class GameScreen extends ScreenState implements Observer {
             }
         });
     }
+
+    // Logic to "bet"
     private void betLogic(){
 
         TextButton betButton = new TextButton("BET", skin);
@@ -243,6 +253,8 @@ public class GameScreen extends ScreenState implements Observer {
         });
 
     }
+
+    // Logic to "check"
     private void checkLogic() {
         TextButton checkButton = new TextButton("CHECK", skin);
         checkButton.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.05));
@@ -306,7 +318,7 @@ public class GameScreen extends ScreenState implements Observer {
         });
     }
 
-
+    // Logic to "call"
     private void callLogic() {
         TextButton callButton = new TextButton("CALL", skin);
         callButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.05));
@@ -369,7 +381,7 @@ public class GameScreen extends ScreenState implements Observer {
         });
     }
 
-
+    // Logic to "raise"
     private void raiseLogic(){
 
         TextButton raiseButton = new TextButton("RAISE", skin);
@@ -451,6 +463,7 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
+    // Logic to "fold"
     private void foldLogic(){
         TextButton foldButton = new TextButton("FOLD", skin);
         foldButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.15));
@@ -514,9 +527,7 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
-    private final ArrayList<Image> communityCardImages = new ArrayList<>();
-    private final ArrayList<Image> playerHandImages = new ArrayList<>();
-
+    // When the model updates it will update the game screen accordingly
     @Override
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");

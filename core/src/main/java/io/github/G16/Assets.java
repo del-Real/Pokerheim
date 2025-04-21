@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Assets {
+
+    // Class used to load the cards sprites
     public static Texture cardAtlas;
 
     public static void load() {

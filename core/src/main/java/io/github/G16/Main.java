@@ -23,6 +23,7 @@ public class Main extends Game {
     }
     @Override
     public void create() {
+        // Initialize viewManager and inputManager
         this.viewManager = ViewManager.getInstance(this);
         this.inputManager = InputManager.getInstance(viewManager, firestoreListener);
 
