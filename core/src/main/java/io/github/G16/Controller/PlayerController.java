@@ -56,7 +56,7 @@ public class PlayerController {
 
                     // Once the lobby is joined the UI is updated to allow the player to set ready
 
-                    if (codeField != null) codeField.setText("Joined lobby successfully");
+                    if (codeField != null) codeField.setText("Joined lobby");
                     if (errorLabel != null) errorLabel.setText("");
                     button.clearListeners();
                     button.setText("READY?");
@@ -241,7 +241,7 @@ public class PlayerController {
 
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
         request.setUrl(url);
-        request.setTimeOut(5000);
+        request.setTimeOut(10000);
 
         infoWindow.setTouchable(null);
 

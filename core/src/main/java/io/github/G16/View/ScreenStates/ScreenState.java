@@ -55,7 +55,11 @@ public abstract class ScreenState implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        skin.dispose();
+        if (stage != null){
+            stage.dispose();
+        }
+        if (skin != null){
+            skin.dispose();
+        }
     }
 }

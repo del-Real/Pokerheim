@@ -539,6 +539,8 @@ public class GameScreen extends ScreenState implements Observer {
         if (oldPot > 0 && newPot == 0) {
             if (newStack == 0){
                 lastActionLabel.setText("Game over, you lost all of your chips");
+            } else {
+                lastActionLabel.setText("New game started");
             }
         } else {
             if (playerTable.getLastAction() == null) {
@@ -547,6 +549,7 @@ public class GameScreen extends ScreenState implements Observer {
                 lastActionLabel.setText(playerTable.getLastAction());
             }
         }
+
 
 
         potLabel.setText("Pot: " + newPot);
