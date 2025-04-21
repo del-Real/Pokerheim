@@ -343,6 +343,7 @@ class Table:
             winner = self.players[winner_id]
             winner.stack += self.pot
             self.game_ended()
+            self.last_action = f"{winner.name} wins {self.pot}."
             return
             
         # Deal community cards based on the round
@@ -366,6 +367,8 @@ class Table:
     def evaluate_hands(self):
         active_players = self.get_active_players()
         if len(active_players) == 0:
+            self.last_action = "No active players left."
+            self.game_ended()
             return
         scores = {}
         for player_id in active_players:
@@ -399,7 +402,7 @@ class Table:
             # If there's a remainder, give it to the first winner
             if remainder > 0 and winners:
                 self.players[winners[0]].stack += remainder
-
+        self.last_action = f"Winner(s): {', '.join([self.players[winner_id].name for winner_id in winners])}"
         self.game_ended()
 
         # TODO : Handle ties and side pots if necessary
