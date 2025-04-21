@@ -11,6 +11,7 @@ import io.github.G16.Controller.InputManager;
 
 public abstract class ScreenState implements Screen {
 
+    // This class is the super class of every screen of the app following the state pattern
     protected InputManager inputManager;
     protected Stage stage;
     protected Skin skin;
@@ -54,7 +55,11 @@ public abstract class ScreenState implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        skin.dispose();
+        if (stage != null){
+            stage.dispose();
+        }
+        if (skin != null){
+            skin.dispose();
+        }
     }
 }

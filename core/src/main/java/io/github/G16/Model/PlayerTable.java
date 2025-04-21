@@ -22,6 +22,7 @@ public class PlayerTable implements Subject{
         this.playerId = playerId;
     }
 
+    // This is for updates from the table
     public void updateTable(int pot, String currentTurn, ArrayList<Card> communityCards, String currentPlayer, String lastAction){
         boolean different = false;
 
@@ -58,6 +59,7 @@ public class PlayerTable implements Subject{
         }
     }
 
+    // This is for updates from the player
     public void updatePlayer(ArrayList<Card> playerHand, int stack){
         boolean different=false;
 
@@ -77,33 +79,29 @@ public class PlayerTable implements Subject{
         }
     }
 
+    // Getters
+
     public String getTableId() {
         return tableId;
     }
-
     public String getPlayerId(){
         return playerId;
     }
-
     public String getCurrentTurn(){
         return currentTurn;
     }
-
     public int getPot(){
         return pot;
     }
-
     public int getStack() {
         return stack;
     }
     public String getCurrentPlayer(){
         return currentPlayer;
     }
-
     public ArrayList<Card> getCommunityCards() {
         return communityCards;
     }
-
     public ArrayList<Card> getPlayerHand() {
         return playerHand;
     }
@@ -111,6 +109,7 @@ public class PlayerTable implements Subject{
         return lastAction;
     }
 
+    // Observer pattern methods
     public void addObserver(Observer observer){
         this.observers.add(observer);
         observer.update(this);

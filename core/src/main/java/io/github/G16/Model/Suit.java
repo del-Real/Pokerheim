@@ -1,16 +1,14 @@
 package io.github.G16.Model;
 
 public enum Suit {
+
+    // Suit enum used by cards
     HEARTS("h"), CLUBS("c"), DIAMONDS("d"), SPADES("s");
 
     private final String shortCode;
 
     Suit(String shortCode) {
         this.shortCode = shortCode;
-    }
-
-    public String getShortCode() {
-        return shortCode;
     }
 
     public static Suit fromString(String code) {

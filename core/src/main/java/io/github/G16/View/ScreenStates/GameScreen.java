@@ -24,33 +24,38 @@ import io.github.G16.View.Observer;
 
 public class GameScreen extends ScreenState implements Observer {
 
+    // This is the screen where the actual "game" happens
     private Label potLabel;
     private Label stackLabel;
     private Label turnLabel;
     private Label lastActionLabel;
     private Window currentOpenWindow=null;
+
+    private final ArrayList<Image> communityCardImages = new ArrayList<>();
+    private final ArrayList<Image> playerHandImages = new ArrayList<>();
     public GameScreen(InputManager inputManager){
         super(inputManager);
     }
 
+    // Here is all the stuff that's visualized on the screen
     @Override
     public void show(){
         super.show();
         turnLabel = new Label("Not Your Turn", skin);
-        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.95));
+        turnLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.1), (float) (Main.SCREEN_HEIGHT * 0.95));
         turnLabel.setAlignment(Align.center);
 
         turnLabel.setWrap(true);
-        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.4));
+        turnLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.3));
 
         stage.addActor(turnLabel);
 
         lastActionLabel = new Label("", skin);
-        lastActionLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.55), (float) (Main.SCREEN_HEIGHT * 0.95));
+        lastActionLabel.setPosition((float) (Main.SCREEN_WIDTH * 0.6), (float) (Main.SCREEN_HEIGHT * 0.95));
         lastActionLabel.setAlignment(Align.center);
 
         lastActionLabel.setWrap(true);
-        lastActionLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.4));
+        lastActionLabel.setWidth((float) (Main.SCREEN_WIDTH * 0.3));
 
         stage.addActor(lastActionLabel);
 
@@ -66,6 +71,7 @@ public class GameScreen extends ScreenState implements Observer {
 
         stage.addActor(errorLabel);
 
+        // This is just so that not everything is in the show method making it easier to look for things
         betLogic();
         checkLogic();
         callLogic();
@@ -99,6 +105,8 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
+    // Logic to leave the table
+
     private void exitLogic(){
         TextButton exitButton = new TextButton("X", skin);
         exitButton.setPosition((float) (0), (float) (Main.SCREEN_HEIGHT*0.9));
@@ -130,6 +138,7 @@ public class GameScreen extends ScreenState implements Observer {
                 } else {
                     PlayerController.getInstance().leaveTable(PlayerController.getInstance().getCurrentTable().getPlayerId(),exitWindow,errorLabel);
                 }
+                InputManager.getInstance(null,null).stopListening();
             }
         });
 
@@ -162,6 +171,8 @@ public class GameScreen extends ScreenState implements Observer {
             }
         });
     }
+
+    // Logic to "bet"
     private void betLogic(){
 
         TextButton betButton = new TextButton("BET", skin);
@@ -242,6 +253,8 @@ public class GameScreen extends ScreenState implements Observer {
         });
 
     }
+
+    // Logic to "check"
     private void checkLogic() {
         TextButton checkButton = new TextButton("CHECK", skin);
         checkButton.setPosition((float) (Main.SCREEN_WIDTH * 0.05), (float) (Main.SCREEN_HEIGHT * 0.05));
@@ -305,7 +318,7 @@ public class GameScreen extends ScreenState implements Observer {
         });
     }
 
-
+    // Logic to "call"
     private void callLogic() {
         TextButton callButton = new TextButton("CALL", skin);
         callButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.05));
@@ -368,7 +381,7 @@ public class GameScreen extends ScreenState implements Observer {
         });
     }
 
-
+    // Logic to "raise"
     private void raiseLogic(){
 
         TextButton raiseButton = new TextButton("RAISE", skin);
@@ -450,6 +463,7 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
+    // Logic to "fold"
     private void foldLogic(){
         TextButton foldButton = new TextButton("FOLD", skin);
         foldButton.setPosition((float) (Main.SCREEN_WIDTH*0.55),(float)(Main.SCREEN_HEIGHT*0.15));
@@ -513,23 +527,21 @@ public class GameScreen extends ScreenState implements Observer {
 
     }
 
-    private final ArrayList<Image> communityCardImages = new ArrayList<>();
-    private final ArrayList<Image> playerHandImages = new ArrayList<>();
-
+    // When the model updates it will update the game screen accordingly
     @Override
     public void update(PlayerTable playerTable) {
         System.out.println("Got an update");
 
         int oldPot = Integer.parseInt(potLabel.getText().toString().replace("Pot: ", ""));
-        int oldStack = Integer.parseInt(stackLabel.getText().toString().replace("Stack: ", ""));
         int newPot = playerTable.getPot();
         int newStack = playerTable.getStack();
-        System.out.println(oldPot + " " + oldStack + " " + newPot + " " + newStack);
 
-        if (oldStack < newStack && !lastActionLabel.getText().toString().isEmpty()) {
-            lastActionLabel.setText("You won, please wait for a new round");
-        } else if (oldPot > 0 && newPot == 0) {
-            lastActionLabel.setText("You lost, please wait for a new round");
+        if (oldPot > 0 && newPot == 0) {
+            if (newStack == 0){
+                lastActionLabel.setText("Game over, you lost all of your chips");
+            } else {
+                lastActionLabel.setText("New game started");
+            }
         } else {
             if (playerTable.getLastAction() == null) {
                 lastActionLabel.setText("");
@@ -537,6 +549,7 @@ public class GameScreen extends ScreenState implements Observer {
                 lastActionLabel.setText(playerTable.getLastAction());
             }
         }
+
 
 
         potLabel.setText("Pot: " + newPot);

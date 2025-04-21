@@ -9,11 +9,14 @@ import io.github.G16.View.ViewManager;
 
 
 public class InputManager implements InputProcessor {
+
+    // InputManager class used to manage the user input (crazy I know)
     private final ViewManager viewManager;
     private final FirestoreListener firestoreListener;
     private InputProcessor currentInputProcessor;
     private static InputManager instance;
 
+    // Singleto pattern
     private InputManager(ViewManager viewManager, FirestoreListener firestoreListener) {
         this.viewManager = viewManager;
         this.firestoreListener = firestoreListener;
@@ -37,7 +40,9 @@ public class InputManager implements InputProcessor {
         firestoreListener.listenForPlayerUpdates(playerTable);
     }
 
-    // Idk what these do
+    public void stopListening(){
+        firestoreListener.stopListening();
+    }
 
     @Override
     public boolean keyDown(int keycode) {

@@ -4,6 +4,8 @@ import com.badlogic.gdx.Game;
 import io.github.G16.View.ScreenStates.ScreenState;
 
 public class ViewManager {
+
+    // Class to set the current screen
     private static ViewManager instance;
 
     private ScreenState screen;
@@ -11,6 +13,8 @@ public class ViewManager {
     private ViewManager(Game game) {
         this.game = game;
     }
+
+    // Singleton pattern
     public static ViewManager getInstance(Game game) {
         if (instance == null) {
             instance = new ViewManager(game);

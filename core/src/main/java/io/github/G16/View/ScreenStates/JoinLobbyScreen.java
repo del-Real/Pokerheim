@@ -13,11 +13,12 @@ import io.github.G16.Main;
 
 public class JoinLobbyScreen extends ScreenState {
 
-
+    // Join lobby screen allows to join a lobby
     public JoinLobbyScreen(InputManager inputManager) {
         super(inputManager);
     }
 
+    // here is all the stuff that's visualized on the screen
     @Override
     public void show() {
         super.show();
@@ -95,14 +96,10 @@ public class JoinLobbyScreen extends ScreenState {
         confirmButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                // When the button is pressed it will send an API request to join a lobby
                 confirmButton.setDisabled(true);
                 infoLabel.setText("Trying to join lobby");
-
-
-                /*
-                Make so that when a valid code is entered, the button clicked function
-                Makes the player ready and the text becomes ready
-                 */
                 PlayerController.getInstance().joinLobby(codeField.getText(),nameField.getText(),codeField, confirmButton, errorLabel);
             }
         });

@@ -15,12 +15,15 @@ import io.github.G16.View.ScreenStates.GameScreen;
 import io.github.G16.View.ScreenStates.MainMenuScreen;
 
 public class PlayerController {
+
+    // This class sends API requests to the server and updates the UI accordingly
     private static final String BASE_URL = "https://us-central1-pokergame-007.cloudfunctions.net";
     private static PlayerController instance;
     private PlayerTable currentTable;
 
     private PlayerController() {}
 
+    // Singleton pattern
     public static PlayerController getInstance() {
         if (instance == null) {
             instance = new PlayerController();
@@ -32,7 +35,9 @@ public class PlayerController {
         return currentTable;
     }
 
+    // This is to join a lobby
     public void joinLobby(String code, String name, TextField codeField, TextButton button, Label errorLabel) {
+        InputManager.getInstance(null,null).stopListening();
         String url = BASE_URL + "/joinTable?tableId=table" + code + "&name=" + name;
 
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
@@ -49,9 +54,10 @@ public class PlayerController {
                     currentTable = new PlayerTable(code, extractPlayerId(responseText));
                     InputManager.getInstance(null, null).listenForUpdates(currentTable);
 
-                    if (codeField != null) codeField.setText("Joined lobby successfully");
-                    if (errorLabel != null) errorLabel.setText("");
+                    // Once the lobby is joined the UI is updated to allow the player to set ready
 
+                    if (codeField != null) codeField.setText("Joined lobby");
+                    if (errorLabel != null) errorLabel.setText("");
                     button.clearListeners();
                     button.setText("READY?");
                     button.addListener(new ClickListener() {
@@ -88,6 +94,7 @@ public class PlayerController {
         return parts.length > 1 ? parts[1] : null;
     }
 
+    // Create lobby method to create a lobby
     public void createLobby(Label codeLabel, String name, TextButton button, Label errorLabel) {
         tryCreateLobby(generateRandomCode(), codeLabel, name, button, errorLabel);
     }
@@ -96,6 +103,8 @@ public class PlayerController {
         return String.valueOf(100000 + (int) (Math.random() * 900000));
     }
 
+    // A random code will be generated and the app will try to create a lobby with that code.
+    // If a lobby with that code already exists it will generate a new one and try again
     private void tryCreateLobby(String tableId, Label codeLabel, String name, TextButton button, Label errorLabel) {
         String url = BASE_URL + "/createTable?tableId=table" + tableId;
 
@@ -113,6 +122,7 @@ public class PlayerController {
                 if (statusCode == HttpStatus.SC_OK) {
                     codeLabel.setText(tableId);
                     if (errorLabel != null) errorLabel.setText("");
+                    // Once the lobby is created it will try to join it
                     joinLobby(tableId, name, null, button, errorLabel);
                 } else if (responseText != null && responseText.contains("Table already exists")) {
                     tryCreateLobby(generateRandomCode(), codeLabel, name, button, errorLabel);
@@ -138,6 +148,7 @@ public class PlayerController {
         });
     }
 
+    // This is used to perform game actions
     public void performAction(String playerId, String action, int amount, Window infoWindow, Label errorLabel) {
         String url = BASE_URL + "/performAction?playerId=" + playerId + "&action=" + action + "&amount=" + amount;
 
@@ -182,6 +193,7 @@ public class PlayerController {
         });
     }
 
+    // Used to set player as ready
     public void setPlayerStatus(String playerId, String status, TextButton button) {
         String url = BASE_URL + "/playerStatus?playerId=" + playerId + "&status=" + status;
 
@@ -205,6 +217,7 @@ public class PlayerController {
                         }
                     }, 1f);
                 } else {
+                    button.setText("TRY AGAIN");
                     button.setDisabled(false);
                 }
             }
@@ -222,12 +235,13 @@ public class PlayerController {
         });
     }
 
+    // Used to leave the table
     public void leaveTable(String playerId, Window infoWindow, Label errorLabel) {
         String url = BASE_URL + "/leaveTable?playerId=" + playerId;
 
         Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
         request.setUrl(url);
-        request.setTimeOut(5000);
+        request.setTimeOut(10000);
 
         infoWindow.setTouchable(null);
 
@@ -242,7 +256,7 @@ public class PlayerController {
                 System.out.println("LeaveTable - Status: " + statusCode);
                 System.out.println("LeaveTable - Response: " + httpResponse.getResultAsString());
 
-                if (statusCode == HttpStatus.SC_OK) {
+                if (statusCode == HttpStatus.SC_OK || httpResponse.getResultAsString().equals("Player does not exist")) {
                     currentTable = null;
                     errorLabel.setText("Leaving...");
 

@@ -13,6 +13,8 @@ import io.github.G16.Model.Rank;
 import io.github.G16.Model.Suit;
 
 public class AndroidFirestoreListener implements io.github.G16.Controller.FirestoreListener {
+
+    // This class listens for updates on firestore and updates PlayerTable
     private final FirebaseFirestore firestore;
     private ListenerRegistration tableRegistration;
     private ListenerRegistration playerRegistration;
@@ -21,6 +23,7 @@ public class AndroidFirestoreListener implements io.github.G16.Controller.Firest
         firestore = FirebaseFirestore.getInstance();
     }
 
+    // This is for listening table updates
     public void listenForTableUpdates(PlayerTable playerTable) {
         tableRegistration = firestore.collection("tables")
                 .document("table" + playerTable.getTableId())
@@ -75,6 +78,8 @@ public class AndroidFirestoreListener implements io.github.G16.Controller.Firest
                 });
     }
 
+    // This is for listening player updates
+
     public void listenForPlayerUpdates(PlayerTable playerTable) {
         playerRegistration = firestore.collection("tables")
                 .document("table" + playerTable.getTableId())
@@ -122,6 +127,8 @@ public class AndroidFirestoreListener implements io.github.G16.Controller.Firest
                     }
                 });
     }
+
+    // This is to stop listening
 
     public void stopListening() {
         if (tableRegistration != null) {
