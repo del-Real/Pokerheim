@@ -1,4 +1,50 @@
-# PokerGame
+# Pokerheim
+
+## How to run the game
+The game can be installed on a smartphone (Android version 5 or higher) or on an emulator through Android Studio. In order to compile the game you can:
+
+1. Open the project in Android Studio.
+2. Let gradle build the app.
+3. Choose the device (emulator or android smartphone connected via USB cable)
+4. Press the run button
+
+Now the game should be installed and should run without issues.
+Otherwise its possible to build the .apk and install it on the phone. To do this:
+
+1. Open the project in Android Studio.
+2. Click the Build tab at the top of the window.  
+3. Then click Build Bundle(s) / APK(s) → Build APK(s)  
+4. Find the compiled .apk file in Pokerheim/android/build/outputs/apk/debug.
+5. Move the .apk file to the phone and install it.
+
+Now the game should run without issues.
+
+## Project Structure
+
+- **`android/`**  
+  Contains the `AndroidFirestoreListener` class, which listens to Firestore updates.  
+  This setup is required because Firebase integration through Gradle expects certain components to be located in the Android module.
+
+- **`core/`**  
+  Holds the client-side logic and follows the Model-View-Controller (MVC) architecture:
+    - **Model**: Data models and business logic
+    - **View**: UI components. Includes a `ScreenStates/` subfolder with the various screen definitions
+    - **Controller**: Handles interaction between the View and Model
+
+- **`backend/`**  
+  Contains the server-side Firebase Cloud Functions that power the game logic and interactions.
+
+
+For a more detailed description of each class in the project look up the implementation report
+
+
+
+
+YouTube video: https://www.youtube.com/watch?v=npO53ToXruA
+
+---
+
+# Pokerheim
 
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
@@ -33,13 +79,3 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
-
-## What to do if when trying to run the app it says file google-services.json is missing:
-- Go to firebase console
-- Login
-- Select the project (should be pokeGame-007)
-- Go to project settings
-- Scroll down and download google-services.json
-- Put it in the folder android (together with AndroidManifest.xml)
-- Now it should run
-- Remember to not push the file since it contains the API key

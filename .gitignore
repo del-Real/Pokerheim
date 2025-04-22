@@ -82,4 +82,3 @@ release/
 *.apk
 *.ipa
 *.obb
-/android/google-services.json
