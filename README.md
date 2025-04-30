@@ -1,3 +1,7 @@
+<div align="center">
+<img width="250" src="Pokerheim_logo.png" alt="colorp logo">
+</div>
+
 # Pokerheim
 
 ## How to run the game
